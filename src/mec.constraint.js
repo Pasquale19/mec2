@@ -866,11 +866,16 @@ mec.constraint = {
                   g = g2().beg({x:p1.x,y:p1.y,w,scl:1,lw:2,
                                 ls:this.model.env.show.constraintVectorColor,
                                 fs:'@ls',lc:'round',sh:this.sh})
-                            .p()
-                            .m({x:!this.ls && r > 50 ? 50 : 0, y:0})
-                            .l({x:r,y:0})
-                            .stroke({ls:this.color,lw:this.lw||2,ld:this.ld||[], lsh:true})
-                            .drw({d:mec.constraint.arrow[type],lsh:true})
+                            .p();
+                            if (this.model.env.show.constraintVector){g.m({x:!this.ls && r > 50 ? 50 : 0, y:0});}                          
+                            
+                            else{g.m({x: 0, y:0});}
+                            
+                            g.l({x:r,y:0})
+                            .stroke({ls:this.color,lw:this.lw||2,ld:this.ld||[], lsh:true});
+                            const arrowColor=this.model.env.show.constraintVector ?this.model.env.show.constraintVectorColor:'transparent';
+                    g.drw({d:mec.constraint.arrow[type],lsh:true,ls:arrowColor, fs:arrowColor})
+                            //.drw({d:mec.constraint.arrow[type],lsh:true})
                           .end();
 
             if (this.model.env.show.constraintLabels) {

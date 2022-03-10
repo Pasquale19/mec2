@@ -1,0 +1,4 @@
+constraintColor =black
+github fork;
+other elements: grdline, sliderline, cam;
+save Animation as .gif

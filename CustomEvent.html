@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JS Custom Event Demo</title>
+</head>
+<body>
+    <div class="note" ></div>JS Custom Event Demo</div>
+    <canvas id='cnv' Width="100px" height="100px" style="background-color: blue" onclick=customEv()></canvas>
+    <input type="button" onclick=btnclicked()>btn</input>
+    <script>
+        const cnv=document.getElementById('cnv');
+        function highlight(elem, callback) {
+            const bgColor = 'yellow';
+            elem.style.backgroundColor = bgColor;
+
+            if (callback && typeof callback === 'function') {
+                callback(elem);
+            }
+        }
+let event = new CustomEvent('customEv', {        detail: {text: 'detailtext'}});
+cnv.addEventListener('customEv', e => console.log(e.detail.text()));
+        function customEv(e){
+            alert('clicked');
+            console.log(e.detail.text);
+        }
+//cnv.addEventListener()
+        function btnclicked(){
+            console.log('btn clicked');
+            this.dispatchEvent(event);
+        }
+
+        let note = document.querySelector('.note');
+        function addBorder(elem) {
+            elem.style.border = "solid 1px red";
+        }
+
+        highlight(note, addBorder);
+        
+
+    </script>
+    
+</body>
+</html>

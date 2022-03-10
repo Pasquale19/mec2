@@ -87,6 +87,8 @@ underlying elements like <code>nodes</code>, <code>constraints</code> etc. are c
 <li><code>x</code> and <code>y</code> - Cartesian coordinates in relation to the origin.</li>
 <li><code>base</code> - A boolean parameter which sets the weight to positive infinity (ground). Default: <code>false</code>.</li>
 <li><code>mass</code> - An optional parameter to set the mass of the node. Default: 1kg. Please note that <code>mass</code> can not be 0.</li>
+<li><code>optic</code> - An optional parameter to set the optic [default,FG,slider]; if node=bass and optic=FG then a FG is used</li>
+<li><code>idloc</code> - Location of label => possible options [n,ne,se,s,e,w]</li>
 </ul>
 <p>Velocity and acceleration can not be determined beforehand, but they are calculated in the simulation process and can be fetched at all times.</p>
 <p>There are no interactions between nodes, except the ones defined by <code>constraints</code>, therefore <code>nodes</code> have two degrees of freedom if they are unconstrained.</p>

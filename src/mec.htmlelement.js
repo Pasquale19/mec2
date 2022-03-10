@@ -223,7 +223,6 @@ class Mec2Element extends HTMLElement {
     }
 
     parseModel() {
-        console.log(this.innerHTML);
         try { this._model = JSON.parse(this.innerHTML); return true; }
         catch (e) { this._root.innerHTML = e.message; }
         return false;
@@ -423,3 +422,4 @@ ${inputs.length ? inputs.map((input, i) => Mec2Element.slider({ input, i, width 
     }
 }
 customElements.define('mec-2', Mec2Element);
+

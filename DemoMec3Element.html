@@ -1,0 +1,104 @@
+<head>
+    <meta charset='utf-8'>
+</head>
+
+<script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
+<script src="../../customG2/g2.ext.js"></script>
+<script src="../../customG2/g2ExtraSymbols.js"></script>
+<script src="../../customG2/g2Extras.js"></script>
+<script async src="src\mec.core.js"></script>
+<script async src="src\mec.model.js"></script>
+<script async src="src\mec.msg.en.js"></script>
+<script async src="src\mec.node.js"></script>
+<script async src="src\mec.constraint.js"></script>
+<script async src="src\mec.drive.js"></script>
+<script async src="src\mec.load.js"></script>
+<script async src="src\mec.view.js"></script>
+
+<script async src="src\mec.shape.js"></script>
+<script async scr="src/mec.ExtraShapes.js"></script>
+<script async scr="Test.js" type="module"></script>
+<script async src="src/mec3.htmlelement.js"></script>
+
+
+<div class="text">
+    <label for="name">Your name:</label>
+    <input id="name" aria-describedby="tp1"/>
+ 
+    </br>
+    <label for="cheese">Favourite type of cheese: </label>
+    <input id="cheese" aria-describedby="tp2"/>
+   
+ </div>
+
+<!--<canvas onclick="clickCanvas()" style="border: 1px; border-color: black; width: 100px; height: 100px; background-color: aqua;" ></canvas>-->
+
+</br>
+<mec-3 style="width:900px !important; height:900px !important; border:1px solid #000000;" 
+x0="100" y0="100"  cartesian
+>
+{
+"nodes": [
+{ "id": "A0", "x": 75, "y": 50, "base": true ,"idloc":"w","optic":"FG"},
+{ "id": "A", "x": 75, "y": 100 },
+{ "id": "B", "x": 275, "y": 170 },
+{ "id": "B0", "x": 275, "y": 50, "base": true ,"idloc":"w","optic":"FG"},
+{ "id": "C", "x": 125, "y": 175 }
+],
+"constraints": [
+{
+    "id": "a", "p1": "A0", "p2": "A", "len": { "type":"const" },
+    "ori": { "type": "drive","Dt": 2, "Dw": 6.28 } 
+}, {
+    "id": "b", "p1": "A", "p2": "B", "len": { "type":"const" }
+}, {
+    "id": "c", "p1": "B0", "p2": "B", "len": { "type":"const" }
+}, {
+    "id": "d", "p1": "B", "p2": "C", "len": { "type":"const" },
+    "ori": { "ref": "b", "type": "const" }
+}
+],
+"views": [
+{
+    "show": "pos", "of": "C", "as": "trace", "Dt":2.1,
+    "mode":"preview", "fill":"orange"
+}, {
+    "show": "vel", "of": "C", "as": "vector"
+}, {
+    "as": "chart", "x": 340, "y": 75,"b":200,"h":150, "Dt": 1.9,
+    "show": "wt", "of": "b"
+}
+],
+"shapes": [
+        { "type": "fix", "p": "C" },
+        { "type": "flt", "p": "B" },
+        { "type": "line", "p1": "B0", "w":"20", "wref":"c","len":"80","lintype":"grd1" }
+    ]
+}
+</mec-3>
+<h2>Schubkurbel</h2>
+<mec-3 style="width:900px !important; height:400px !important; border:1px solid #000000;" 
+x0="10" y0="10"  cartesian
+>{
+    
+"id":"slider-crank",
+  "nodes": [
+    { "id":"A0","x":100,"y":100,"base":true },
+    { "id":"A","x":100,"y":170 },
+    { "id":"B","x":350,"y":80 },
+    { "id":"B0","x":500,"y":80,"base":true }
+  ],
+  "constraints": [
+    { "id":"b","p1":"A","p2":"B","len":{ "type":"const" } },
+    { "id":"c","p1":"B0","p2":"B","ori":{ "type":"const" } },
+    { "id":"a","p1":"A0","p2":"A","len":{ "type":"const" },"ori":{ "type":"drive","Dt":1,"Dw":6.283185307179586 } }
+  ],
+  "shapes": [
+        { "type": "fix", "p": "A0" },
+       
+        { "type": "slider", "p": "B", "wref":"c"}
+    ]
+}
+</mec-3>
+

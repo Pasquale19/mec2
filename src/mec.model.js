@@ -79,9 +79,17 @@ mec.model = {
                 this.loads[i].init(this,i);
             for (let i=0; i < this.views.length && this.valid; i++)
                 this.views[i].init(this,i);
-            for (let i=0; i < this.shapes.length && this.valid; i++)
-                this.shapes[i].init(this,i);
-
+            for (let i=0; i < this.shapes.length && this.valid; i++){
+                try{
+                    this.shapes[i].init(this,i);
+                }
+                catch(e)
+                {
+                    console.log(`error at index: ${i} + type: ${this.shapes[i]}`)
+                    console.log(`error: ${e}`);
+                }
+                
+            }
             return this;
         },
         /**

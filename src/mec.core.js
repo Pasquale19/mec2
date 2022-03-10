@@ -89,6 +89,12 @@ corrMax: 64,
 * @type {object}
 */
 show: {
+     /**
+     * flag for showing constraintVector
+     * @const
+     * @type {boolean}
+     */
+           constraintVector: true,
     /**
      * flag for darkmode.
      * @const
@@ -127,7 +133,7 @@ show: {
     constraints: true,
     colors: {
         invalidConstraintColor: '#b11',
-        validConstraintColor:   { dark: '#ffffff99',        light: '#777' },
+        validConstraintColor:   { dark: '#ffffff99',        light: 'black' },
         forceColor:             { dark: 'orangered',        light: 'orange' },
         springColor:            { dark: '#ccc',             light: '#aaa' },
         constraintVectorColor:  { dark: 'orange',           light: 'green' },
@@ -137,6 +143,7 @@ show: {
         velVecColor:            { dark: 'lightsteelblue',   light: 'steelblue' },
         accVecColor:            { dark: 'lightsalmon',      light: 'firebrick' },
         forceVecColor:          { dark: 'wheat',            light: 'saddlebrown' }
+
     },
     /**
      * color for drawing valid constraints.

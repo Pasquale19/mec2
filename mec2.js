@@ -89,6 +89,12 @@ corrMax: 64,
 * @type {object}
 */
 show: {
+     /**
+     * flag for showing constraintVector
+     * @const
+     * @type {boolean}
+     */
+           constraintVector: true,
     /**
      * flag for darkmode.
      * @const
@@ -127,7 +133,7 @@ show: {
     constraints: true,
     colors: {
         invalidConstraintColor: '#b11',
-        validConstraintColor:   { dark: '#ffffff99',        light: '#777' },
+        validConstraintColor:   { dark: '#ffffff99',        light: 'black' },
         forceColor:             { dark: 'orangered',        light: 'orange' },
         springColor:            { dark: '#ccc',             light: '#aaa' },
         constraintVectorColor:  { dark: 'orange',           light: 'green' },
@@ -137,6 +143,7 @@ show: {
         velVecColor:            { dark: 'lightsteelblue',   light: 'steelblue' },
         accVecColor:            { dark: 'lightsalmon',      light: 'firebrick' },
         forceVecColor:          { dark: 'wheat',            light: 'saddlebrown' }
+
     },
     /**
      * color for drawing valid constraints.
@@ -573,6 +580,7 @@ mec.node = {
                  + (this.base ? ',"base":true' : '')
                  + ((!this.base && this.m !== 1) ? ',"m":'+this.m : '')
                  + (this.idloc ? ',"idloc":"'+this.idloc+'"' : '')
+                 + (this.optic ? ',"optic":"'+this.optic+'"' : '')
                  + ' }';
         },
 
@@ -620,8 +628,21 @@ mec.node = {
         get r() { return mec.node.radius; },
 
         g2() {
-            const g = g2().use({grp: this.base ? mec.node.g2BaseNode 
-                                               : mec.node.g2Node, x:this.x, y:this.y, sh:this.sh});
+           // const g = g2().use({grp: this.base ? mec.node.g2BaseNode : mec.node.g2Node, x:this.x, y:this.y, sh:this.sh});
+            let nodesymbl;
+            switch(this.optic)
+            {
+                case('FG'):
+                    nodesymbl=g2.symbol.nodfix2;
+                    break;
+                case('slider'):
+                    nodesymbl=g2.symbol.slider;
+                    break;
+                default:
+                nodesymbl=this.base ? mec.node.g2BaseNode   : g2.symbol.pol;
+                break;
+            }
+            const g=g2().use({grp:nodesymbl,x:this.x, y:this.y, sh:this.sh});
             if (this.model.env.show.nodeLabels) {
                 const loc = mec.node.locdir[this.idloc || 'n'];
                 g.txt({str:this.id||'?',
@@ -1514,11 +1535,16 @@ mec.constraint = {
                   g = g2().beg({x:p1.x,y:p1.y,w,scl:1,lw:2,
                                 ls:this.model.env.show.constraintVectorColor,
                                 fs:'@ls',lc:'round',sh:this.sh})
-                            .p()
-                            .m({x:!this.ls && r > 50 ? 50 : 0, y:0})
-                            .l({x:r,y:0})
-                            .stroke({ls:this.color,lw:this.lw||2,ld:this.ld||[], lsh:true})
-                            .drw({d:mec.constraint.arrow[type],lsh:true})
+                            .p();
+                            if (this.model.env.show.constraintVector){g.m({x:!this.ls && r > 50 ? 50 : 0, y:0});}                          
+                            
+                            else{g.m({x: 0, y:0});}
+                            
+                            g.l({x:r,y:0})
+                            .stroke({ls:this.color,lw:this.lw||2,ld:this.ld||[], lsh:true});
+                            const arrowColor=this.model.env.show.constraintVector ?this.model.env.show.constraintVectorColor:'transparent';
+                    g.drw({d:mec.constraint.arrow[type],lsh:true,ls:arrowColor, fs:arrowColor})
+                            //.drw({d:mec.constraint.arrow[type],lsh:true})
                           .end();
 
             if (this.model.env.show.constraintLabels) {
@@ -3128,6 +3154,191 @@ mec.shape.img = {
 }
 
 /**
+ * @param {object} - slider2 shape.
+ * @property {string} p - referenced node id for position.
+ * @property {string} [wref] - referenced constraint id for orientation.
+ * @property {number} [w0] - optional initial angle / -difference.
+ */
+ mec.shape.slider3 = {
+    /**
+     * Check slider3 shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'slider3',id:this.id,idx,reftype:'node',name:'p'};
+        if (!this.model.nodeById(this.p))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'node',name:this.p};
+        else
+            this.p = this.model.nodeById(this.p);
+
+        if (this.wref && !this.model.constraintById(this.wref))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'constraint',name:this.wref};
+        else
+            this.wref = this.model.constraintById(this.wref);
+
+        return false;
+    },
+    /**
+     * Initialize slider2 shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.w0 = this.w0 || 0;
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+        return this.p === elem || this.wref === elem;
+    },
+    asJSON() {
+        return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
+                + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
+                + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
+                + ' }';
+    },
+    draw(g) {
+        const w0=this.w0||0;
+       const w = this.wref ? ()=>this.wref.w  : this.w0 || 0;
+       
+       // const w=((this.wref.w||0) + w0) ;
+        //console.log(`w0 ${w0} \n w ${this.wref.w}`);
+      //  g.use({grp:'slider',x:400,y:200, w:w});
+        g.beg({x:()=>this.p.x,y:()=>this.p.y,w:w})
+           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"@linkfill",lw:1,lj:"round"})
+  .end()
+    }
+}
+
+/**
+ * @param {object} - line with fixed length
+ * @property {string} p1 - referenced node id for start point position.
+ * @property {string} p2 - referenced node id for end point position.
+ * @property {number} wref - if p2 is not provided wref will be used as reference
+ * @property {number} len - length of lin
+ * @property {string} txt - optional label
+ * @property {string} lintype - optional type
+ */
+ mec.shape.line = {
+    /**
+     * Check bar shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        //check p1
+        if (this.p1 === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'line',id:this.id,idx,reftype:'node',name:'p1'};
+        if (!this.model.nodeById(this.p1))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'node',name:this.p1};
+        else
+            this.p1 = this.model.nodeById(this.p1);
+        //check wref or p2
+        if (this.wref!==undefined)
+        {
+             if (this.wref && !this.model.constraintById(this.wref))
+                return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'constraint',name:this.wref};
+            else
+                this.wref = this.model.constraintById(this.wref);
+        }
+        else{
+                if (this.p2 === undefined)
+                    return { mid:'E_ELEM_REF_MISSING',elemtype:'line',id:this.id,idx,reftype:'node',name:'p2'};
+                if (!this.model.nodeById(this.p2))
+                    return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'node',name:this.p2};
+                else
+                    this.p2 = this.model.nodeById(this.p2);
+        }
+        //check len
+        if (this.len === undefined ||this.len<0)
+            return { mid:'E_LEN_MISSING',elemtype:'line',id:this.id,idx};
+
+
+        return false;
+    },
+    /**
+     * Initialize line shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        this.model.notifyValid(this.validate(idx));
+    },
+    dependsOn(elem) {
+        return this.p1 === elem || this.p2 === elem;
+    },
+    asJSON() {
+        let jsonString = '{ "type":"'+this.type+'","p1":"'+this.p1.id+'",    ';
+        if (this.p2!==undefined)
+        {
+            jsonString+=' "p2":"'+this.p2.id+'"   ';
+        }
+        else{
+            jsonString+= this.wref ? ' "wref":"'+this.wref.id+'"   '  : '' ;
+        }
+        jsonString+=',"len":"'+this.len+'"';
+        jsonString+= this.color ? ' ,"color":"'+this.color+'"   '  : '' ;
+        jsonString+= this.txt ? ' ,"txt":"'+this.txt+'"   '  : '' ;
+        jsonString+= this.lintype ? ' ,"lintype":"'+this.lintype+'"   '  : '' ;
+        jsonString+=' }';
+        return jsonString;
+    },
+    draw(g) {
+        const x1 = this.p1.x,
+                y1 = this.p1.y;
+        let w;
+        if (this.p2!==undefined)
+        {
+           const px2 = this.p2.x,
+                 py2 =  this.p2.y;
+            w= Math.atan2(py2-y1,px2-x1);
+            console.log("p2 defined");
+        }
+        else{
+            w=this.wref.w;
+            console.log("w defined");
+        }
+       const x2=Math.cos(w)*this.len+x1;
+       const y2=Math.sin(w)*this.len+y1;
+
+       //add text g.txt
+console.log(`len:${this.len} w:${Math.round(w)} x2: ${Math.round(x2)} \n y2: ${Math.round(y2)} x1: ${Math.round(x1)} \n y1: ${Math.round(y1)}`);
+       switch(this.lintype)
+       {
+           case'par':
+                console.log('grdlines');
+               // g.grdlines({x1:x1,y1:y1,x2:x2,y2:y2,ls:"orange",lw:8,lc:"round"});               
+                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
+                break;
+            case 'grd1':
+                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
+                break;
+            case 'grd2':
+                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'out'});
+                break;
+            default:
+                
+               // g.lin({x1,y1,x2,y2,ls:"yellow",lw:8,lc:"round"});
+                break;
+       }
+
+    }
+}
+/**
  * mec.model (c) 2018-19 Stefan Goessner
  * @license MIT License
  * @requires mec.core.js
@@ -3208,9 +3419,17 @@ mec.model = {
                 this.loads[i].init(this,i);
             for (let i=0; i < this.views.length && this.valid; i++)
                 this.views[i].init(this,i);
-            for (let i=0; i < this.shapes.length && this.valid; i++)
-                this.shapes[i].init(this,i);
-
+            for (let i=0; i < this.shapes.length && this.valid; i++){
+                try{
+                    this.shapes[i].init(this,i);
+                }
+                catch(e)
+                {
+                    console.log(`error at index: ${i} + type: ${this.shapes[i]}`)
+                    console.log(`error: ${e}`);
+                }
+                
+            }
             return this;
         },
         /**
@@ -4018,3 +4237,68 @@ mec.msg.en = {
 }
 
 
+console.log('Extra Shapes loaded');
+
+/**
+ * @param {object} - slider2 shape.
+ * @property {string} p - referenced node id for position.
+ * @property {string} [wref] - referenced constraint id for orientation.
+ * @property {number} [w0] - initial angle / -difference.
+ */
+ mec.shape.slider2 = {
+    /**
+     * Check slider2 shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'slider2',id:this.id,idx,reftype:'node',name:'p'};
+        if (!this.model.nodeById(this.p))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider2',id:this.id,idx,reftype:'node',name:this.p};
+        else
+            this.p = this.model.nodeById(this.p);
+
+        if (this.wref && !this.model.constraintById(this.wref))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider2',id:this.id,idx,reftype:'constraint',name:this.wref};
+        else
+            this.wref = this.model.constraintById(this.wref);
+
+        return false;
+    },
+    /**
+     * Initialize slider2 shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.w0 = this.w0 || 0;
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+        return this.p === elem || this.wref === elem;
+    },
+    asJSON() {
+        return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
+                + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
+                + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
+                + ' }';
+    },
+    draw(g) {
+        const w = this.wref ? ()=>this.wref.w : this.w0 || 0;
+      //  g.use({grp:'slider',x:400,y:200});
+        g.beg({x:()=>this.p.x,y:()=>this.p.y,w})
+           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"@linkfill",lw:1,lj:"round"})
+  .end()
+    }
+}

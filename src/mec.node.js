@@ -180,6 +180,7 @@ mec.node = {
                  + (this.base ? ',"base":true' : '')
                  + ((!this.base && this.m !== 1) ? ',"m":'+this.m : '')
                  + (this.idloc ? ',"idloc":"'+this.idloc+'"' : '')
+                 + (this.optic ? ',"optic":"'+this.optic+'"' : '')
                  + ' }';
         },
 
@@ -227,8 +228,21 @@ mec.node = {
         get r() { return mec.node.radius; },
 
         g2() {
-            const g = g2().use({grp: this.base ? mec.node.g2BaseNode 
-                                               : mec.node.g2Node, x:this.x, y:this.y, sh:this.sh});
+           // const g = g2().use({grp: this.base ? mec.node.g2BaseNode : mec.node.g2Node, x:this.x, y:this.y, sh:this.sh});
+            let nodesymbl;
+            switch(this.optic)
+            {
+                case('FG'):
+                    nodesymbl=g2.symbol.nodfix2;
+                    break;
+                case('slider'):
+                    nodesymbl=g2.symbol.slider;
+                    break;
+                default:
+                nodesymbl=this.base ? mec.node.g2BaseNode   : g2.symbol.pol;
+                break;
+            }
+            const g=g2().use({grp:nodesymbl,x:this.x, y:this.y, sh:this.sh});
             if (this.model.env.show.nodeLabels) {
                 const loc = mec.node.locdir[this.idloc || 'n'];
                 g.txt({str:this.id||'?',

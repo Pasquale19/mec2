@@ -514,3 +514,189 @@ mec.shape.img = {
         g.img({uri:this.uri,x:()=>this.p.x,y:()=>this.p.y,w,scl:this.scl,xoff:this.xoff,yoff:this.yoff})
     }
 }
+
+/**
+ * @param {object} - slider2 shape.
+ * @property {string} p - referenced node id for position.
+ * @property {string} [wref] - referenced constraint id for orientation.
+ * @property {number} [w0] - optional initial angle / -difference.
+ */
+ mec.shape.slider3 = {
+    /**
+     * Check slider3 shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'slider3',id:this.id,idx,reftype:'node',name:'p'};
+        if (!this.model.nodeById(this.p))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'node',name:this.p};
+        else
+            this.p = this.model.nodeById(this.p);
+
+        if (this.wref && !this.model.constraintById(this.wref))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'constraint',name:this.wref};
+        else
+            this.wref = this.model.constraintById(this.wref);
+
+        return false;
+    },
+    /**
+     * Initialize slider2 shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.w0 = this.w0 || 0;
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+        return this.p === elem || this.wref === elem;
+    },
+    asJSON() {
+        return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
+                + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
+                + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
+                + ' }';
+    },
+    draw(g) {
+        const w0=this.w0||0;
+       const w = this.wref ? ()=>this.wref.w  : this.w0 || 0;
+       
+       // const w=((this.wref.w||0) + w0) ;
+        //console.log(`w0 ${w0} \n w ${this.wref.w}`);
+      //  g.use({grp:'slider',x:400,y:200, w:w});
+        g.beg({x:()=>this.p.x,y:()=>this.p.y,w:w})
+           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"@linkfill",lw:1,lj:"round"})
+  .end()
+    }
+}
+
+/**
+ * @param {object} - line with fixed length
+ * @property {string} p1 - referenced node id for start point position.
+ * @property {string} p2 - referenced node id for end point position.
+ * @property {number} wref - if p2 is not provided wref will be used as reference
+ * @property {number} len - length of lin
+ * @property {string} txt - optional label
+ * @property {string} lintype - optional type
+ */
+ mec.shape.line = {
+    /**
+     * Check bar shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        //check p1
+        if (this.p1 === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'line',id:this.id,idx,reftype:'node',name:'p1'};
+        if (!this.model.nodeById(this.p1))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'node',name:this.p1};
+        else
+            this.p1 = this.model.nodeById(this.p1);
+        //check wref or p2
+        if (this.wref!==undefined)
+        {
+             if (this.wref && !this.model.constraintById(this.wref))
+                return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'constraint',name:this.wref};
+            else
+                this.wref = this.model.constraintById(this.wref);
+        }
+        else{
+                if (this.p2 === undefined)
+                    return { mid:'E_ELEM_REF_MISSING',elemtype:'line',id:this.id,idx,reftype:'node',name:'p2'};
+                if (!this.model.nodeById(this.p2))
+                    return { mid:'E_ELEM_INVALID_REF',elemtype:'line',id:this.id,idx,reftype:'node',name:this.p2};
+                else
+                    this.p2 = this.model.nodeById(this.p2);
+        }
+        //check len
+        if (this.len === undefined ||this.len<0)
+            return { mid:'E_LEN_MISSING',elemtype:'line',id:this.id,idx};
+
+
+        return false;
+    },
+    /**
+     * Initialize line shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        this.model.notifyValid(this.validate(idx));
+    },
+    dependsOn(elem) {
+        return this.p1 === elem || this.p2 === elem;
+    },
+    asJSON() {
+        let jsonString = '{ "type":"'+this.type+'","p1":"'+this.p1.id+'",    ';
+        if (this.p2!==undefined)
+        {
+            jsonString+=' "p2":"'+this.p2.id+'"   ';
+        }
+        else{
+            jsonString+= this.wref ? ' "wref":"'+this.wref.id+'"   '  : '' ;
+        }
+        jsonString+=',"len":"'+this.len+'"';
+        jsonString+= this.color ? ' ,"color":"'+this.color+'"   '  : '' ;
+        jsonString+= this.txt ? ' ,"txt":"'+this.txt+'"   '  : '' ;
+        jsonString+= this.lintype ? ' ,"lintype":"'+this.lintype+'"   '  : '' ;
+        jsonString+=' }';
+        return jsonString;
+    },
+    draw(g) {
+        const x1 = this.p1.x,
+                y1 = this.p1.y;
+        let w;
+        if (this.p2!==undefined)
+        {
+           const px2 = this.p2.x,
+                 py2 =  this.p2.y;
+            w= Math.atan2(py2-y1,px2-x1);
+            console.log("p2 defined");
+        }
+        else{
+            w=this.wref.w;
+            console.log("w defined");
+        }
+       const x2=Math.cos(w)*this.len+x1;
+       const y2=Math.sin(w)*this.len+y1;
+
+       //add text g.txt
+//console.log(`len:${this.len} w:${Math.round(w)} x2: ${Math.round(x2)} \n y2: ${Math.round(y2)} x1: ${Math.round(x1)} \n y1: ${Math.round(y1)}`);
+       switch(this.lintype)
+       {
+           case'normal':
+                g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
+               // g.grdlines({x1:x1,y1:y1,x2:x2,y2:y2,ls:"orange",lw:8,lc:"round"});               
+                //g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
+                break;
+            case 'grd1':
+                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
+                break;
+            case 'grd2':
+                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'out'});
+                break;
+            default:
+                g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
+               // g.lin({x1,y1,x2,y2,ls:"yellow",lw:8,lc:"round"});
+                break;
+       }
+
+    }
+}
