@@ -834,16 +834,18 @@ const l=100;//length
 
         const A1={x:Math.cos(alpha1)*l+p2.x,y:Math.sin(alpha1)*l+p2.y};
         const A2={x:Math.cos(alpha2)*l+p2.x,y:Math.sin(alpha2)*l+p2.y};
+        const cP={x:0.4*A1.x+0.4*A2.x+0.2*this.p2.x,y:0.4*A1.y+0.4*A2.y+0.2*this.p2.y};
         const M={x:(A1.x+A2.y)/2+20,y:(A1.x+A2.y)/2};
         let toString=function (P){return `${Math.round(P.x)} ${Math.round(P.y)}`;};
         console.log(`alpha1=${Math.round(alpha1*180/Math.PI)} \n alpha2=${alpha2*180/Math.PI} `);
        console.log(`A1=${toString(A1)}\np2=${toString(p2)}\nA2=${toString(A2)}`);
+       console.log(`cP: ${toString(cP)}`)
        // console.log(`A1=${A1.x} ${A1.y}\n A2=${A2.x} ${A2.y} `);
         //console.log(`p1=${this.p1.x} ${this.p1.y}\n p2=${this.p2.x} ${this.p2.y} \n p3=${this.p3.x} ${this.p3.y}`);
         g.ply({pts:[p2.x,p2.y,A1.x,A1.y,A2.x,A2.y],closed:true,ls:'red',lw:3,fs:'green'});
         g.p().m({x:p2.x,y:p2.y})
             .l({x:A1.x,y:A1.y})
-            .q({x1:A2.x,y1:A2.y,x:M.x,y:M.y})
+            .q({x1:cP.x,y1:cP.y,x:A2.x,y:A2.y})
             //.l({x:A2.x,y:A2.y})
             .l({x:p2.x,y:p2.y})
             .z()            

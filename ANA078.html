@@ -34,13 +34,15 @@ x0="00" y0="00"  cartesian scale="1" nodelabels constraintlabels font="20px bold
     "id":"ANA078",
  
     "nodes": [
-      { "id" :"A0" ,"x":313.8,"y":549,"base":true, "optic":"FG" },
-      { "id" :"A" ,"x":375.6,"y":551.1},
-      { "id" :"B0" ,"x":88.5,"y":504,"base":true, "optic":"FG" },
-      { "id" :"B" ,"x":222.9,"y":574.8},
-      { "id" :"C" ,"x":454.5,"y":439.2},
-      { "id" :"D" ,"x":318.3,"y":286.2},
-      { "id" :"D0" ,"x":318.3,"y":300,"base":true, "optic":"FG" ,"hid":true }
+    { "id" :"A0" ,"x":313.8,"y":549,"base":true, "optic":"FG" , "idloc":"e" },
+{ "id" :"A" ,"x":353.7,"y":596.1},
+{ "id" :"B0" ,"x":88.5,"y":504,"base":true, "optic":"FG" },
+{ "id" :"B" ,"x":199.5,"y":607.5},
+{ "id" :"C" ,"x":441.6,"y":490.8},
+{ "id" :"D" ,"x":318.3,"y":327},
+{ "id" :"D0" ,"x":318.3,"y":330,"base":true, "optic":"FG" }
+
+    
     
     ],
     "constraints": [
@@ -68,7 +70,7 @@ x0="00" y0="00"  cartesian scale="1" nodelabels constraintlabels font="20px bold
     }
     ],
     "shapes": [
-            { "type": "fix", "p": "B0" },
+            { "type": "corner", "p1": "A", "p2": "B" , "p3": "C"},
             { "type": "slider", "p": "D" ,"wref":"6"},
             { "type": "line", "p1": "D0", "wref":"6","len":"180","lintype":"grd2" }
         ]
