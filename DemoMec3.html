@@ -1,0 +1,88 @@
+<head>
+    <meta charset='utf-8'>
+</head>
+<canvas id="cv" width="550" height="300"></canvas>
+<!--<script  src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>-->
+<!--<script  src="../../customG2/g2.ext.js"></script>-->
+<script src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
+<script src="../../customG2/g2.ext.js"></script>
+<script src="../../customG2/g2ExtraSymbols.js"></script>
+
+
+<script src="./release/mec3.js"></script>
+<script src="./release/mec3.html.js"></script>
+<script>
+    
+    const ctx = document.getElementById("cv").getContext("2d");
+
+    const model = {
+        "nodes": [
+            { "id": "A0", "x": 75, "y": 50, "base": true, "optic":"FG", "idloc":"w" },
+            { "id": "A", "x": 75, "y": 100 },
+            { "id": "B", "x": 275, "y": 170 },
+            { "id": "B0", "x": 275, "y": 50, "base": true ,"optic":"FG"},
+            { "id": "C", "x": 125, "y": 175 }
+        ],
+        "constraints": [
+        {
+            "id": "a", "p1": "A0", "p2": "A", "len": { "type":"const" },
+            "ori": { "type": "drive", "Dt": 2, "Dw": 6.28 }
+        }, {
+            "id": "b", "p1": "A", "p2": "B", "len": { "type":"const" }
+        }, {
+            "id": "c", "p1": "B0", "p2": "B", "len": { "type":"const" }
+        }, {
+            "id": "d", "p1": "B", "p2": "C", "len": {       "type":"const" },
+            "ori": { "ref": "b", "type": "const" }
+        }
+        ],
+        "views": [
+            {
+                "show": "pos", "of": "C", "as": "trace", "Dt":2.1,
+                "mode":"preview", "fill":"orange"
+            }, {
+                "show": "vel", "of": "C", "as": "vector"
+            }, {
+                "as": "chart", "x": 340, "y": 75, "Dt": 1.9,
+                "show": "wt", "of": "b"
+            }
+        ]
+    };
+    mec.show.nodeLabels=true;
+    mec.show.nodes=true;
+    mec.show.constraintVector=false;
+    mec.model.extend(model);
+    model.init();
+    const g = g2().del().clr().view({ cartesian: true });
+
+    model.draw(g);
+    (function render() {
+        model.tick(1/60);
+        g.exe(ctx);
+        requestAnimationFrame(render)
+    })();
+</script>
+<h2>Schubkurbel</h2>
+<mec-3 style="width:900px !important; height:300px !important; border:1px solid #000000;" 
+x0="10" y0="10"  cartesian
+>{
+    
+"id":"slider-crank",
+  "nodes": [
+    { "id":"A0","x":100,"y":100,"base":true,"optic":"FG" },
+    { "id":"A","x":100,"y":170 },
+    { "id":"B","x":350,"y":80 },
+    { "id":"B0","x":220,"y":80,"base":true, "hid":"true" }
+  ],
+  "constraints": [
+    { "id":"b","p1":"A","p2":"B","len":{ "type":"const" },"txt":"3" },
+    { "id":"c","p1":"B0","p2":"B","ori":{ "type":"const" },"hid":"true" },
+    { "id":"a","p1":"A0","p2":"A","len":{ "type":"const" },"txt":"2","ori":{ "type":"drive","Dt":1,"Dw":6.283185307179586 ,"repeat":100} }
+  ],
+  "shapes": [
+        { "type": "fix", "p": "A0" },       
+        { "type": "slider", "p": "B", "wref":"c"},
+        { "type": "line", "p1": "B0", "p2":"B", "len":270, "lintype":"grd2"}
+    ]
+}
+</mec-3>

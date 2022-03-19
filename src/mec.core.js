@@ -94,7 +94,7 @@ show: {
      * @const
      * @type {boolean}
      */
-           constraintVector: true,
+     constraintVector: true,
     /**
      * flag for darkmode.
      * @const

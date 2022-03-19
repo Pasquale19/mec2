@@ -15,15 +15,15 @@
   ],
   "main": "mec2.js",
   "scripts": {
-    "build": "npm run minify && npm run jsdoc && npm run gzip && npm run cpsamp",
+    "build": "npm run minify && npm run jsdoc  && npm run cpsamp",
     "update": "npm run concat && npm run minify && npm run mec2html && npm run mec3html",
-    "concat": "concat ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js ./src/mec.ExtraShapes.js >mec2.js",
-    "minify": "uglifyjs ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js ./src/mec.ExtraShapes.js -o ./mec2.min.js --comments -m",
+    "concat": "concat ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js ./src/mec.ExtraShapes.js > ./release/mec3.js",
+    "minify": "uglifyjs ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js ./src/mec.ExtraShapes.js -o ./release/mec3.min.js --comments -m",
     "jsdoc": "jsdoc2md ./mec2.js > ./doc/api.md",
     "gzip": "7z -tgzip a ./mec2.min.js.gz ./mec2.min.js",
     "cpsamp": "copyfiles -f ./examples/*.html ../goessner.github.io/g2/examples",
-    "mec2html": "concat ./bin/g2.js ./bin/g2.selector.js ./bin/canvasInteractor.js ./mec2.js ./bin/mec.slider.js ./bin/mec.htmlelement.js > ./mec2.html.js",
-    "mec3html": "concat ../../customG2/g2.ext.js ../../customG2/g2ExtraSymbols.js ../../customG2/g2Extras.js ./mec2.js ./src/mec.slider.js ./src/mec3.htmlelement.js > ./release/mec3.html.js"
+    "mec2html": "concat ./bin/g2.js ./bin/g2.selector.js ./bin/canvasInteractor.js ./release/mec3.js ./bin/mec.slider.js ./bin/mec.htmlelement.js > ./release/mec2.html.js",
+    "mec3html": "concat ../../customG2/g2.ext.js ../../customG2/g2ExtraSymbols.js ../../customG2/g2Extras.js ./release/mec3.js ./bin/mec.slider.js ./src/mec3.htmlelement.js > ./release/mec3.html.js"
   },
   "author": "Stefan Goessner <fang03@web.de>",
   "repository": {
@@ -36,5 +36,8 @@
     "jsdoc-to-markdown": "^1.3.2",
     "uglify-es": "^3.3.9"
   },
-  "microjam": {}
+  "microjam": {},
+  "dependencies": {
+    "node-7z": "^3.0.0"
+  }
 }

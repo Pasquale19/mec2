@@ -12,7 +12,7 @@
 /**
  * @method
  * @param {object} - plain javascript shape object.
- * @property {string} type - shape type ['fix'|'flt'|'slider'|'bar'|'beam'|'wheel'|'poly'|'img'].
+ * @property {string} type - shape type ['fix'|'flt'|'slider'|'bar'|'beam'|'wheel'|'poly'|'img'|'Schieber'|'line'|'corner'].
  */
 mec.shape = {
     extend(shape) {
@@ -594,7 +594,7 @@ mec.shape.img = {
  */
  mec.shape.line = {
     /**
-     * Check bar shape properties for validity.
+     * Check line shape properties for validity.
      * @method
      * @param {number} idx - index in shape array.
      * @returns {boolean} false - if no error / warning was detected.
@@ -655,6 +655,7 @@ mec.shape.img = {
         jsonString+=',"len":"'+this.len+'"';
         jsonString+= this.color ? ' ,"color":"'+this.color+'"   '  : '' ;
         jsonString+= this.txt ? ' ,"txt":"'+this.txt+'"   '  : '' ;
+        
         jsonString+= this.lintype ? ' ,"lintype":"'+this.lintype+'"   '  : '' ;
         jsonString+=' }';
         return jsonString;
@@ -668,23 +669,21 @@ mec.shape.img = {
            const px2 = this.p2.x,
                  py2 =  this.p2.y;
             w= Math.atan2(py2-y1,px2-x1);
-            console.log("p2 defined");
+          //  console.log("p2 defined");
         }
         else{
             w=this.wref.w;
-            console.log("w defined");
+            //console.log("w defined");
         }
        const x2=Math.cos(w)*this.len+x1;
        const y2=Math.sin(w)*this.len+y1;
 
        //add text g.txt
-//console.log(`len:${this.len} w:${Math.round(w)} x2: ${Math.round(x2)} \n y2: ${Math.round(y2)} x1: ${Math.round(x1)} \n y1: ${Math.round(y1)}`);
+
        switch(this.lintype)
        {
            case'normal':
                 g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
-               // g.grdlines({x1:x1,y1:y1,x2:x2,y2:y2,ls:"orange",lw:8,lc:"round"});               
-                //g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
                 break;
             case 'grd1':
                 g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
@@ -694,9 +693,163 @@ mec.shape.img = {
                 break;
             default:
                 g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
-               // g.lin({x1,y1,x2,y2,ls:"yellow",lw:8,lc:"round"});
                 break;
        }
 
+    }
+}
+/**
+ * @param {object} - Schieber shape.
+ * @property {string} p - referenced node id for position.
+ * @property {string} [wref] - referenced constraint id for orientation.
+ * @property {number} [w0] - initial angle / -difference.
+ */
+ mec.shape.Schieber = {
+    /**
+     * Check Schieber shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'Schieber',id:this.id,idx,reftype:'node',name:'p'};
+        if (!this.model.nodeById(this.p))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Schieber',id:this.id,idx,reftype:'node',name:this.p};
+        else
+            this.p = this.model.nodeById(this.p);
+
+        if (this.wref && !this.model.constraintById(this.wref))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Schieber',id:this.id,idx,reftype:'constraint',name:this.wref};
+        else
+            this.wref = this.model.constraintById(this.wref);
+
+        return false;
+    },
+    /**
+     * Initialize Schieber shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.w0 = this.w0 || 0;
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+        return this.p === elem || this.wref === elem;
+    },
+    asJSON() {
+        return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
+                + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
+                + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
+                + ' }';
+    },
+    draw(g) {
+        const w = this.wref ? ()=>this.wref.w : this.w0 || 0;
+      //  g.use({grp:'slider',x:400,y:200});
+        g.beg({x:()=>this.p.x,y:()=>this.p.y,w})
+           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"white",lw:1,lj:"round"})
+  .end()
+    }
+}
+
+/**
+ * @param {object} - Schieber shape.
+ * @property {string} p1 - referenced node id for position.
+ * @property {string} [p2] - referenced constraint id for position2.
+ * @property {string} [p3] - referenced constraint id for position3.
+ */
+ mec.shape.corner = {
+    /**
+     * Check Schieber shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p1 === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p1'};
+        if (!this.model.nodeById(this.p1))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p1};
+        else
+            this.p1 = this.model.nodeById(this.p1);
+
+        if (this.p2 === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p2'};
+        if (!this.model.nodeById(this.p2))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p2};
+        else
+            this.p2 = this.model.nodeById(this.p2);
+
+        if (this.p3 === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p3'};
+        if (!this.model.nodeById(this.p3))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p3};
+        else
+            this.p3 = this.model.nodeById(this.p3);
+
+
+        return false;
+    },
+    /**
+     * Initialize corner shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.w0 = this.w0 || 0;
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+        return this.p1 === elem || this.p3 === elem|| this.p2 === elem;
+    },
+    asJSON() {
+        return '{ "type":"'+this.type+'","p1":"'+this.p1.id+'","p2":"'+this.p2.id+'","p3":"'+this.p3.id+'"}';
+    },
+    draw(g) {
+        const p1 = this.p1;     
+             const p2=this.p2;
+              const p3= this.p3;
+const l=100;//length
+        const alpha1=Math.atan2(p1.y-p2.y,p1.x-p2.x);
+        const alpha2=Math.atan2(this.p3.y-p2.y,this.p3.x-p2.x);
+
+        const A1={x:Math.cos(alpha1)*l+p2.x,y:Math.sin(alpha1)*l+p2.y};
+        const A2={x:Math.cos(alpha2)*l+p2.x,y:Math.sin(alpha2)*l+p2.y};
+        const M={x:(A1.x+A2.y)/2+20,y:(A1.x+A2.y)/2};
+        let toString=function (P){return `${Math.round(P.x)} ${Math.round(P.y)}`;};
+        console.log(`alpha1=${Math.round(alpha1*180/Math.PI)} \n alpha2=${alpha2*180/Math.PI} `);
+       console.log(`A1=${toString(A1)}\np2=${toString(p2)}\nA2=${toString(A2)}`);
+       // console.log(`A1=${A1.x} ${A1.y}\n A2=${A2.x} ${A2.y} `);
+        //console.log(`p1=${this.p1.x} ${this.p1.y}\n p2=${this.p2.x} ${this.p2.y} \n p3=${this.p3.x} ${this.p3.y}`);
+        g.ply({pts:[p2.x,p2.y,A1.x,A1.y,A2.x,A2.y],closed:true,ls:'red',lw:3,fs:'green'});
+        g.p().m({x:p2.x,y:p2.y})
+            .l({x:A1.x,y:A1.y})
+            .q({x1:A2.x,y1:A2.y,x:M.x,y:M.y})
+            //.l({x:A2.x,y:A2.y})
+            .l({x:p2.x,y:p2.y})
+            .z()            
+            .fill({fs:'green'})
+        .end();
+
+        
     }
 }

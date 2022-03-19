@@ -1,0 +1,46 @@
+{
+    "id":"ErfurtGetriebe",
+    "nodes": [
+      { "id":"A0","x":162,"y":519,"base":true },
+      { "id":"B","x":549,"y":393,"base":true },
+      { "id":"C","x":445,"y":822,"base":true },
+      { "id":"D","x":226,"y":535 },
+      { "id":"E","x":542,"y":739 },
+      { "id":"F","x":233,"y":457 },
+      { "id":"G","x":304,"y":503 },
+      { "id":"H","x":197,"y":311 },
+      { "id":"H0","x":198,"y":403,"base":true },
+      { "id":"J","x":588,"y":554 },
+      { "id":"K","x":364,"y":409 },
+      { "id":"L","x":471,"y":571 },
+      { "id":"M","x":509,"y":536 },
+      { "id":"N","x":662,"y":461 },
+      { "id":"K0","x":137,"y":180,"base":true },
+      { "id":"P","x":138,"y":88 }
+    ],
+    "constraints": [
+      { "id":"a","p1":"I","p2":"H","ori":{ "type":"const" } },
+      { "id":"b","p1":"A","p2":"D","len":{ "type":"const" } },
+      { "id":"c","p1":"D","p2":"E","len":{ "type":"const" } },
+      { "id":"d","p1":"E","p2":"C","len":{ "type":"const" } },
+      { "id":"e","p1":"A","p2":"G","len":{ "type":"const" } },
+      { "id":"f","p1":"A","p2":"F","len":{ "type":"const" } },
+      { "id":"g","p1":"G","p2":"F","len":{ "type":"const" },"ori":{ "type":"const" } },
+      { "id":"h","p1":"G","p2":"H","len":{ "type":"const" } },
+      { "id":"i","p1":"C","p2":"J","len":{ "type":"const" } },
+      { "id":"j","p1":"B","p2":"N","len":{ "type":"const" } },
+      { "id":"k","p1":"N","p2":"J","len":{ "type":"const" } },
+      { "id":"l","p1":"B","p2":"M","len":{ "type":"const" } },
+      { "id":"m","p1":"B","p2":"L","len":{ "type":"const" } },
+      { "id":"n","p1":"M","p2":"L","len":{ "type":"const" },"ori":{ "type":"const" } },
+      { "id":"o","p1":"E","p2":"J","len":{ "type":"const" },"ori":{ "type":"const" } },
+      { "id":"p","p1":"L","p2":"K","ori":{ "type":"const" } },
+      { "id":"q","p1":"D","p2":"K","len":{ "type":"const" } },
+      { "id":"r","p1":"O","p2":"P","ori":{ "type":"const" } },
+      { "id":"s","p1":"K","p2":"P","len":{ "type":"const" } },
+      { "id":"t","p1":"D","p2":"F","len":{ "type":"const" } }
+    ],
+    "shapes": [
+      { "type":"img","uri":"./Models/ErfurtGetriebe/ErfurtGetriebe.png","scl":1.3 }
+    ]
+  }

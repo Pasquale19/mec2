@@ -44,6 +44,7 @@
 <p>All of them have to be imported for <strong>mec2</strong> to be usable.
 It is mandatory for the <strong>core</strong> module to be loaded first.<br>
 Please note that the <strong>mec2.js</strong> and <strong>mec2.min.js</strong> in the root of the project contain all modules, so no further imports are necessary.</p>
+<!--core modul-->
 <h3 id="core">Core <a class="plnk" href="#core">#</a></h3>
 <p>The <code>core</code> module contains the central <code>mec</code> object on which all other modules build upon.</p>
 <p>It provides the mechanism with:</p>
@@ -57,6 +58,7 @@ Please note that the <strong>mec2.js</strong> and <strong>mec2.min.js</strong> i
 </ul>
 <p>It is advised to use the properties given by the central <code>mec</code> object to minimize the overhead when changing the environment. Especially the analyzing capabilities minimize unit errors.</p>
 <p>A <code>mec</code> model is respectively used as environment (<code>env</code>) for all models which are extended through it.</p>
+<!--model modul-->
 <h3 id="model">Model <a class="plnk" href="#model">#</a></h3>
 <p>By importing <code>mec.model</code>, the <code>model</code> property is added to the <code>mec</code> object.
 This property provides the <code>extend</code> function, which is designed
@@ -78,6 +80,8 @@ e.g. by calling <code>init</code> on the <code>model</code>, the respective <cod
 underlying elements like <code>nodes</code>, <code>constraints</code> etc. are called.</p>
 <p>Therefore to import and extend the model using <code>model.extend</code> is a necessary step to create a fully functioning mechanism.</p>
 <p>For nodes and constraints (and all other modules) to be delegated in the <code>model</code> it is of course necessary to import the respective modules.</p>
+<p>Draw each object</p>
+<!--node modul-->
 <h3 id="nodes">Nodes <a class="plnk" href="#nodes">#</a></h3>
 <p><code>nodes</code> are two dimensional particles.</p>
 <!-- TODO die gif is mist... -->
@@ -104,9 +108,16 @@ underlying elements like <code>nodes</code>, <code>constraints</code> etc. are c
 }
 </div></code></pre>
 <img src="../img/nodes.gif" width=600 alt="first">
+<!--constraints-->
 <h2 id="constraints">Constraints <a class="plnk" href="#constraints">#</a></h2>
 <p><code>constraints</code> define the type of interactions of two <code>nodes</code>.
 Provided a pair of <code>nodes</code>, constraints are defined by their <code>id</code>, using them as properties <code>p1</code> and <code>p2</code>.</p>
+<p>They have some extra properties:</p>
+<ul>
+<li><code>txt</code> - An optional parameter, if provided txt will be diplayed as label instead of id</li>
+<li><code>idloc</code> - Location of label => possible options ['left','right',-1..1]</li>
+<li><code>hid</code> - An optional parameter to declare the constarint as invisible</li>
+</ul>
 <p><code>constraints</code> have two properties to limit the movement of the respective <code>nodes</code>:</p>
 <ul>
 <li><code>ori</code> - The constraint allows changes in orientation, but not in length.</li>

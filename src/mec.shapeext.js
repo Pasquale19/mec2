@@ -1,35 +1,40 @@
-console.log('Extra Shapes loaded');
+/*immadietly caled function*/
+(function() {
+    console.log('Extra Shapes loaded');
+  })()
+
+
 
 /**
- * @param {object} - slider2 shape.
+ * @param {object} - Schieber shape.
  * @property {string} p - referenced node id for position.
  * @property {string} [wref] - referenced constraint id for orientation.
  * @property {number} [w0] - initial angle / -difference.
  */
- mec.shape.slider2 = {
+ mec.shape.Schieber = {
     /**
-     * Check slider2 shape properties for validity.
+     * Check Schieber shape properties for validity.
      * @method
      * @param {number} idx - index in shape array.
      * @returns {boolean} false - if no error / warning was detected.
      */
     validate(idx) {
         if (this.p === undefined)
-            return { mid:'E_ELEM_REF_MISSING',elemtype:'slider2',id:this.id,idx,reftype:'node',name:'p'};
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'Schieber',id:this.id,idx,reftype:'node',name:'p'};
         if (!this.model.nodeById(this.p))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider2',id:this.id,idx,reftype:'node',name:this.p};
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Schieber',id:this.id,idx,reftype:'node',name:this.p};
         else
             this.p = this.model.nodeById(this.p);
 
         if (this.wref && !this.model.constraintById(this.wref))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider2',id:this.id,idx,reftype:'constraint',name:this.wref};
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Schieber',id:this.id,idx,reftype:'constraint',name:this.wref};
         else
             this.wref = this.model.constraintById(this.wref);
 
         return false;
     },
     /**
-     * Initialize slider2 shape. Multiple initialization allowed.
+     * Initialize Schieber shape. Multiple initialization allowed.
      * @method
      * @param {object} model - model parent.
      * @param {number} idx - index in shapes array.

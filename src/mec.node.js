@@ -181,6 +181,7 @@ mec.node = {
                  + ((!this.base && this.m !== 1) ? ',"m":'+this.m : '')
                  + (this.idloc ? ',"idloc":"'+this.idloc+'"' : '')
                  + (this.optic ? ',"optic":"'+this.optic+'"' : '')
+                 + (this.hid ? ',"hid":"'+this.hid+'"' : '')
                  + ' }';
         },
 
@@ -234,6 +235,7 @@ mec.node = {
             {
                 case('FG'):
                     nodesymbl=g2.symbol.nodfix2;
+                    //console.log(`nodsymbl\n${nodesymbl}`)
                     break;
                 case('slider'):
                     nodesymbl=g2.symbol.slider;

@@ -1,0 +1,77 @@
+<head>
+    <meta charset='utf-8'>
+</head>
+
+<script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
+<script src="../../customG2/g2.ext.js"></script>
+<script src="../../customG2/g2ExtraSymbols.js"></script>
+<script src="../../customG2/g2Extras.js"></script>
+<script async src="src\mec.core.js"></script>
+<script async src="src\mec.model.js"></script>
+<script async src="src\mec.msg.en.js"></script>
+<script async src="src\mec.node.js"></script>
+<script async src="src\mec.constraint.js"></script>
+<script async src="src\mec.drive.js"></script>
+<script async src="src\mec.load.js"></script>
+<script async src="src\mec.view.js"></script>
+
+<script async src="src\mec.shape.js"></script>
+<script async scr="src/mec.ExtraShapes.js"></script>
+<script async scr="Test.js" type="module"></script>
+<script async src="src/mec3.htmlelement.js"></script>
+
+
+<h1>ANA078</h1>
+
+<!--<canvas onclick="clickCanvas()" style="border: 1px; border-color: black; width: 100px; height: 100px; background-color: aqua;" ></canvas>-->
+
+</br>
+<mec-3 style="width:900px !important; height:1000px !important; border:1px solid #000000;" 
+x0="00" y0="00"  cartesian scale="1" nodelabels constraintlabels font="20px bold" gravity
+>
+{
+    "id":"ANA078",
+ 
+    "nodes": [
+      { "id" :"A0" ,"x":313.8,"y":549,"base":true, "optic":"FG" },
+      { "id" :"A" ,"x":375.6,"y":551.1},
+      { "id" :"B0" ,"x":88.5,"y":504,"base":true, "optic":"FG" },
+      { "id" :"B" ,"x":222.9,"y":574.8},
+      { "id" :"C" ,"x":454.5,"y":439.2},
+      { "id" :"D" ,"x":318.3,"y":286.2},
+      { "id" :"D0" ,"x":318.3,"y":300,"base":true, "optic":"FG" ,"hid":true }
+    
+    ],
+    "constraints": [
+      { "id":"2","p1":"A0","p2":"A","len":{ "type":"const" } ,"ori":{ "type":"drive","Dt":9,"Dw":6.283185307179586, "repeat":100 }},
+      { "id":"l3","p1":"A","p2":"B","len":{ "type":"const" },"txt":" " ,"idloc":-1},
+      { "id":"l3_2","p1":"A","p2":"C","len":{ "type":"const" },"txt":" " },
+      { "id":"4","p1":"B0","p2":"B","len":{ "type":"const" } },
+      { "id":"3","p1":"B","p2":"C","len":{ "type":"const" }},
+      { "id":"5","p1":"C","p2":"D","len":{ "type":"const" } },
+      { "id":"6","p1":"D0","p2":"D","ori":{ "type":"const" }, "hid":true }
+    ],
+    "loads": [
+    {      "id":"F1","type":"force","p":"D",
+      "value":30,"w0":-1.5708,"mode":"push"      }
+  ],
+    "views": [
+    {
+        "show": "pos", "of": "C", "as": "trace", "Dt":2.1,
+        "mode":"preview", "fill":"orange"
+    }, {
+        "show": "vel", "of": "B", "as": "vector"
+    }, {
+        "as": "chart", "x": 40, "y": 95,"b":200,"h":150, "Dt": 1.9,
+        "show": "r", "of": "6", "against":{"show":"w", "of":"2"}
+    }
+    ],
+    "shapes": [
+            { "type": "fix", "p": "B0" },
+            { "type": "slider", "p": "D" ,"wref":"6"},
+            { "type": "line", "p1": "D0", "wref":"6","len":"180","lintype":"grd2" }
+        ]
+  }
+</mec-3>
+

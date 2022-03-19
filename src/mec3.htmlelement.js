@@ -1,5 +1,5 @@
 
-console.log('mec3.element.js loaded');
+//console.log('mec3.element.js loaded');
 /*ignore jslint start*/
 class Mec3Element extends HTMLElement{
 
@@ -7,7 +7,7 @@ class Mec3Element extends HTMLElement{
     return ['width', 'height', 'cartesian', 'grid', 'x0', 'y0',
         'darkmode', 'gravity', 'hidenodes', 'hideconstraints',
         'nodelabels', 'constraintlabels', 'loadlabels',
-        'nodeinfo', 'constraintinfo'];
+        'nodeinfo', 'constraintinfo','constraintVector','scale','font','pause'];
 }
 
 constructor(){
@@ -24,12 +24,22 @@ get x0() { return (+this.getAttribute('x0')) || 0; }
 set x0(q) { if (q) this.setAttribute('x0', q); }
 get y0() { return (+this.getAttribute('y0')) || 0; }
 set y0(q) { if (q) this.setAttribute('y0', q); }
+get show() { return this._show; }
+get grid() { return this.hasAttribute('grid') || false; }
+set grid(q) { q ? this.setAttribute('grid', '') : this.removeAttribute('grid'); }
 get pausing(){return this._ispaused;}
 set pausing(q) {this._ispaused=q;}
 get constraintVector() { return this.hasAttribute('constraintVector') || false; }
 set constraintVector(q) { q ? this.setAttribute('constraintVector', '') : this.removeAttribute('constraintVector'); }
-get grid() { return this.hasAttribute('grid') || false; }
-set grid(q) { q ? this.setAttribute('grid', '') : this.removeAttribute('grid'); }
+get constraintlabels() { return this.hasAttribute('constraintlabels') || false; }
+set constraintlabels(q) { q ? this.setAttribute('constraintlabels', '') : this.removeAttribute('constraintlabels'); }
+get scale() { return this.getAttribute('scale') || 1; }
+set scale(q) { q ? this.setAttribute('scale', q) : this.removeAttribute('scale'); }
+get font() { return this.getAttribute('font') || "roboto 14px normal"; }
+set font(q) { q ? this.setAttribute('font', q) : this.removeAttribute('font'); }
+get pause() { return this.hasAttribute('pause') || false; }
+set pause(q) { q ? this.setAttribute('pause', '') : this.removeAttribute('pause'); }
+
 //#endregion
 parseModel() {
   try { this._model = JSON.parse(this.innerHTML); return true; }
@@ -39,7 +49,7 @@ parseModel() {
 
 
 
-    onclick(e){
+  onclick(e){
        //this.cnvclicked();
     
        if (this._ispaused===undefined) this._ispaused=false;
@@ -48,11 +58,25 @@ parseModel() {
       {    
           console.log(`start: ${this._ispaused}`);
           window.requestAnimationFrame(() => this.render()); //start again
-      }
-   
-         
-      
+      }   
   }
+  // Pan the view when user moves the pointer with any button pressed.
+ onmove(e) {
+  if (e.buttons !== undefined ? e.buttons : (e.which || e.button)) {
+      const dx = e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+            dy = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+            this._viewport.x+=dx,this._viewport.y+=dy;                        // g2.view uses device coordinates
+  dirty = true;
+  }
+}
+// Zoom the view when user uses the mouse wheel.
+ onwheel(e) {
+  const delta = Math.max(-1,Math.min(1,e.deltaY||e.wheelDelta));
+          vw.scl *= delta > 0?9/10:10/9;              // g2.view again uses device coordinates
+          vw.x = e.clientX - Math.floor(viewport.left),
+          vw.y = e.clientY - Math.floor(viewport.top),
+  dirty = true;
+}
    render() {
       if (this._ispaused) return;
       this._model.tick(1/60);  
@@ -68,7 +92,7 @@ parseModel() {
       //console.log('connected Callback');
       //create model
       if (!this.parseModel()) return;
-      this._ispaused=false;
+      this._ispaused=this.hasAttribute('pause')||false;
      //install show from attributes
     this._show = Object.create(Object.getPrototypeOf(mec.show), Object.getOwnPropertyDescriptors(mec.show)); // copy defaults
     this._show.darkmode = this.getAttribute('darkmode') === "" ? true : false;  // boolean
@@ -76,6 +100,7 @@ parseModel() {
     this._show.constraints = this.getAttribute('hideconstraints') === "" ? false : true;  // boolean
     this._show.nodeLabels = this.getAttribute('nodelabels') === "" ? true : false;  // boolean
     this._show.constraintLabels = this.getAttribute('constraintlabels') === "" ? true : false;  // boolean
+    this._show.constraintVector = this.getAttribute('constraintVector') === "" ? true : false;  // boolean
     this._show.nodeInfo = this.hasAttribute('nodeinfo') && (this.getAttribute('nodeinfo') || 'id');  // string
     this._show.constraintInfo = this.hasAttribute('constraintinfo') && (this.getAttribute('constraintinfo') || 'id');  // string
     //this._show.constraintVector = this.hasAttribute('constraintinfo') && (this.getAttribute('constraintinfo') || 'id');  // string
@@ -84,9 +109,8 @@ parseModel() {
 
     //setup model
     
-    mec.show.constraintLabels=false;
-    mec.show.nodeLabels=true;
-    mec.show.constraintVector=false;
+
+   
     this._model = mec.model.extend(this._model, this);
     this._model.init();
 
@@ -128,21 +152,26 @@ parseModel() {
     // get elements from the shadow dom
     this._cnv=this._shadow.getElementById('cnv');
     this._ctx = this._cnv.getContext('2d');
+    //set font
+    this._ctx.font = this.font;
 
-    //add event listener
-     this._cnv.addEventListener('click',e=> this.onclick(e) );
+    
 
     
     //create g2 object
-    this._viewport={x:this.x0||0,y:this.y0||0,scl:1||1,cartesian:true};
-    this._g = g2().clr().view(this._viewport);
+    this._viewport={x:this.x0||0,y:this.y0||0,scl:this.scale||1,cartesian:true};
+    console.log(`font${this.font}`);
+    this._g = g2().clr().view(this._viewport).beg({font:this.font});
+
+    //add event listener
+    this._cnv.addEventListener('click',e=> this.onclick(e) );
         
     if (this.grid) this._g.grid({ color:'black' });
     //draw model and start simulation
     this._model.draw(this._g);
     this._g.exe(this._ctx);                              // append model-graphics to graphics-obj
-    //this.simulate();   
-    window. requestAnimationFrame(() => this.render());
+    if (!this.pause){window. requestAnimationFrame(() => this.render());}
+    
  
     }
     disconnectedCallback() {

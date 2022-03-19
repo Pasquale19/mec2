@@ -17,9 +17,14 @@
 <script async src="src\mec.view.js"></script>
 
 <script async src="src\mec.shape.js"></script>
-<script async scr="src/mec.ExtraShapes.js"></script>
+<script async scr="./src/mec.shapext.js"></script>
 <script async scr="Test.js" type="module"></script>
 <script async src="src/mec3.htmlelement.js"></script>
+
+<!--mec2-->
+<script async src="bin/g2.selector.js"></script>
+<script async  src="bin/canvasInteractor.js"></script>
+<script async src="src/mec.htmlelement.js"></script>
 
 
 <div class="text">
@@ -35,8 +40,8 @@
 <!--<canvas onclick="clickCanvas()" style="border: 1px; border-color: black; width: 100px; height: 100px; background-color: aqua;" ></canvas>-->
 
 </br>
-<mec-3 style="width:900px !important; height:900px !important; border:1px solid #000000;" 
-x0="100" y0="100"  cartesian
+<mec-3 style="width:900px !important; height:300px !important; border:1px solid #000000;" 
+x0="100" y0="50"  cartesian constraintlabels nodelabels pause
 >
 {
 "nodes": [
@@ -44,12 +49,12 @@ x0="100" y0="100"  cartesian
 { "id": "A", "x": 75, "y": 100 },
 { "id": "B", "x": 275, "y": 170 },
 { "id": "B0", "x": 275, "y": 50, "base": true ,"idloc":"w","optic":"FG"},
-{ "id": "C", "x": 125, "y": 175 }
+{ "id": "C", "x": 125, "y": 225 }
 ],
 "constraints": [
 {
     "id": "a", "p1": "A0", "p2": "A", "len": { "type":"const" },
-    "ori": { "type": "drive","Dt": 2, "Dw": 6.28 } 
+    "ori": { "type": "drive","Dt": 2, "Dw": 6.28 ,"repeat":100} 
 }, {
     "id": "b", "p1": "A", "p2": "B", "len": { "type":"const" }
 }, {
@@ -67,38 +72,64 @@ x0="100" y0="100"  cartesian
     "show": "vel", "of": "C", "as": "vector"
 }, {
     "as": "chart", "x": 340, "y": 75,"b":200,"h":150, "Dt": 1.9,
-    "show": "wt", "of": "b"
+    "show": "w", "of": "b", "against":{"show":"w", "of":"a"}
 }
 ],
 "shapes": [
-        { "type": "fix", "p": "C" },
+        { "type": "corner", "p1": "C", "p2":"B", "p3":"A" },
         { "type": "flt", "p": "B" },
         { "type": "line", "p1": "B0", "w":"20", "wref":"c","len":"80","lintype":"grd1" }
     ]
 }
 </mec-3>
 <h2>Schubkurbel</h2>
-<mec-3 style="width:900px !important; height:400px !important; border:1px solid #000000;" 
-x0="10" y0="10"  cartesian
+<mec-3 style="width:900px !important; height:300px !important; border:1px solid #000000;" 
+x0="10" y0="10"  cartesian constraintlabels nodelabels
 >{
     
 "id":"slider-crank",
   "nodes": [
-    { "id":"A0","x":100,"y":100,"base":true },
+    { "id":"A0","x":100,"y":100,"base":true,"optic":"FG", "idloc":"w" },
     { "id":"A","x":100,"y":170 },
     { "id":"B","x":350,"y":80 },
-    { "id":"B0","x":500,"y":80,"base":true }
+    { "id":"B0","x":220,"y":80,"base":true, "hid":"true" }
   ],
   "constraints": [
-    { "id":"b","p1":"A","p2":"B","len":{ "type":"const" } },
-    { "id":"c","p1":"B0","p2":"B","ori":{ "type":"const" } },
-    { "id":"a","p1":"A0","p2":"A","len":{ "type":"const" },"ori":{ "type":"drive","Dt":1,"Dw":6.283185307179586 } }
+    { "id":"b","p1":"A","p2":"B","len":{ "type":"const" },"txt":"3" ,"idloc":1},
+    { "id":"c","p1":"B0","p2":"B","ori":{ "type":"const" },"hid":"true" },
+    { "id":"a","p1":"A0","p2":"A","len":{ "type":"const" },"txt":"2","ori":{ "type":"drive","Dt":5,"Dw":6.283185307179586 ,"repeat":100}, "idloc":-1 }
   ],
-  "shapes": [
-        { "type": "fix", "p": "A0" },
-       
-        { "type": "slider", "p": "B", "wref":"c"}
+  "shapes": [      
+        { "type": "slider", "p": "B", "wref":"c"},
+        { "type": "line", "p1": "B0", "p2":"B", "len":270, "lintype":"grd2"}
     ]
 }
 </mec-3>
+
+<!--Kurbelschleife-->
+<h2>Kurbelschleife</h2>
+<mec-3 style="width:900px !important; height:600px !important; border:1px solid #000000;" 
+x0="200" y0="250"  cartesian constraintlabels nodelabels
+>{
+    "id":"Kurbelschleife",
+    "nodes": [
+      { "id":"A0","x":1,"y":0,"base":true, "idloc":"w", "optic":"FG" },
+      { "id":"B0","x":50,"y":0,"base":true, "idloc":"e", "optic":"FG" },
+      { "id":"A","x":100,"y":0 },
+      { "id":"C","x":220,"y":0, "hid":true }
+    ],
+    "constraints": [
+      { "id":"4","p1":"B0","p2":"A", "idloc":1 },
+      { "id":"3","p1":"B0","p2":"C", "idloc":1,"len":{ "type":"const" } ,"ori":{ "type":"const","ref":"4" }, "txt":" "},
+      { "id":"2","p1":"A0","p2":"A", "idloc":1,"len":{ "type":"const" },"ori":{ "type":"drive","Dt":10,"Dw":6.283185307179586, "repeat":100 } }
+    ],
+    "shapes": [       
+          { "type": "Schieber", "p": "A", "wref":"4"},
+          { "type": "line", "p1": "B0", "p2":"A", "len":270}
+      ]
+  }
+</mec-3>
+
+
+
 

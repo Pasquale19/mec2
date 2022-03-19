@@ -793,6 +793,9 @@ mec.constraint = {
         },
         asJSON() {
             let jsonString = '{ "id":"'+this.id+'","p1":"'+this.p1.id+'","p2":"'+this.p2.id+'"';
+            jsonString+= (this.hid ? `,"hid":${this.hid}` : '');
+            jsonString+= (this.txt ? `,"txt":${this.txt}` : '');
+            jsonString+= (this.idloc ? `,"txt":${this.idloc}` : '');
 
             if (this.len && !(this.len.type === 'free')) {
                 jsonString += (this.len.type === 'const' ? ',"len":{ "type":"const"' : '')
@@ -862,7 +865,7 @@ mec.constraint = {
                            : this.model.env.show.colors.invalidConstraintColor;  // due to 'this.model.env.show.invalidConstraintColor' undefined
         },
         g2() {
-            const {p1,w,r,type,id,idloc} = this, 
+            const {p1,w,r,type,id,idloc,txt} = this, 
                   g = g2().beg({x:p1.x,y:p1.y,w,scl:1,lw:2,
                                 ls:this.model.env.show.constraintVectorColor,
                                 fs:'@ls',lc:'round',sh:this.sh})
@@ -879,7 +882,11 @@ mec.constraint = {
                           .end();
 
             if (this.model.env.show.constraintLabels) {
-                let idstr = id || '?', cw = this.cw, sw = this.sw,
+
+                let idstr=this.txt||id||'?';
+               // let idstr=id||'?';
+
+                let  cw = this.cw, sw = this.sw,
                     u = idloc === 'left' ? 0.5
                         : idloc === 'right' ? -0.5
                         : idloc + 0 === idloc ? idloc  // is numeric

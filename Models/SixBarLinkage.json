@@ -1,0 +1,20 @@
+{
+  "id":"linkage",
+  "nodes": [
+    { "id":"A0","x":1,"y":1,"base":true,"idloc":"w" },
+    { "id":"B0","x":402,"y":1,"base":true },
+    { "id":"A","x":30,"y":75 },
+    { "id":"B","x":432,"y":167 },
+    { "id":"C","x":521,"y":185 },
+    { "id":"D0","x":655,"y":-2,"base":true },
+    { "id":"D","x":667,"y":225 }
+  ],
+  "constraints": [
+    { "id":"l2","p1":"A0","p2":"A","len":{ "type":"const" },"ori":{ "type":"drive","Dt":1,"Dw":6.283185307179586,"repeat":10 } },
+    { "id":"l3","p1":"A","p2":"B","len":{ "type":"const" } },
+    { "id":"l4","p1":"B0","p2":"B","len":{ "type":"const" } },
+    { "id":"l6","p1":"C","p2":"D","len":{ "type":"const" } },
+    { "id":"l7","p1":"D0","p2":"D","len":{ "type":"const" } },
+    { "id":"l5","p1":"B0","p2":"C","len":{ "type":"const" },"ori":{ "type":"const","ref":"l4" } }
+  ]
+}
