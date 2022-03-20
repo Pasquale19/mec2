@@ -181,7 +181,7 @@ mec.view.vector = {
                 y1: () => this.p.y,
                 x2: () => this.p.x + this.v.x,
                 y2: () => this.p.y + this.v.y,
-                ls: this.model.env.show[this.show + 'VecColor'],
+                ls: this.stroke||this.model.env.show[this.show + 'VecColor'],
                 lw: 1.5,
                 sh: this.sh
             }));
@@ -412,7 +412,7 @@ mec.view.info = {
 mec.view.chart = {
     constructor() { }, // always parameterless .. !
     /**
-     * Check vector view properties for validity.
+     * Check chart view properties for validity.
      * @method
      * @param {number} idx - index in views array.
      * @returns {boolean} false - if no error / warning was detected.

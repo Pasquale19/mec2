@@ -131,6 +131,12 @@ show: {
      * @type {boolean}
      */
     constraints: true,
+    /**
+     * textFont
+     * @const
+     * @type {string}
+     */
+    font: "normal 13px serif",
     colors: {
         invalidConstraintColor: '#b11',
         validConstraintColor:   { dark: '#ffffff99',        light: 'black' },
@@ -209,7 +215,7 @@ gravity: {x:0,y:-10,active:false},
  * analysing values
  */
 aly: {
-    m: { get scl() { return 1}, type:'num', name:'m', unit:'kg' },
+    m: { get scl() { return 1}, type:'num', name:'m', unit:'kg' },//mass
     pos: { type:'pnt', name:'p', unit:'m' },
     vel: { get scl() {return mec.m_u}, type:'vec', name:'v', unit:'m/s', get drwscl() {return 40*mec.m_u} },
     acc: { get scl() {return mec.m_u}, type:'vec', name:'a', unit:'m/s^2', get drwscl() {return 10*mec.m_u} },

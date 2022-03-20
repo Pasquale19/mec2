@@ -840,18 +840,18 @@ mec.model = {
          */
         draw(g) {
           
-            for (const view of this.views)
-                view.draw(g);
+            
             for (const constraint of this.constraints)
             {
                const hid=constraint.hid||false;
                 if (!hid){
                     constraint.draw(g);
-                }
-                
+                }                
             }
             for (const shape of this.shapes)
             shape.draw(g);
+            for (const view of this.views)
+                view.draw(g);
             for (const load of this.loads)
                 load.draw(g);
             for (const node of this.nodes)

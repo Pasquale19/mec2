@@ -251,8 +251,10 @@ mec.node = {
                         x: this.x + 3*this.r*loc[0],
                         y: this.y + 3*this.r*loc[1],
                         thal:'center',tval:'middle',
-                        ls:this.model.env.show.txtColor});
+                        ls:this.model.env.show.txtColor,
+                        font:this.model.env.show.font});
             }
+            
             return g;
         },
         draw(g) {

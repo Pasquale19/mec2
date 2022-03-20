@@ -515,73 +515,6 @@ mec.shape.img = {
     }
 }
 
-/**
- * @param {object} - slider2 shape.
- * @property {string} p - referenced node id for position.
- * @property {string} [wref] - referenced constraint id for orientation.
- * @property {number} [w0] - optional initial angle / -difference.
- */
- mec.shape.slider3 = {
-    /**
-     * Check slider3 shape properties for validity.
-     * @method
-     * @param {number} idx - index in shape array.
-     * @returns {boolean} false - if no error / warning was detected.
-     */
-    validate(idx) {
-        if (this.p === undefined)
-            return { mid:'E_ELEM_REF_MISSING',elemtype:'slider3',id:this.id,idx,reftype:'node',name:'p'};
-        if (!this.model.nodeById(this.p))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'node',name:this.p};
-        else
-            this.p = this.model.nodeById(this.p);
-
-        if (this.wref && !this.model.constraintById(this.wref))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'slider3',id:this.id,idx,reftype:'constraint',name:this.wref};
-        else
-            this.wref = this.model.constraintById(this.wref);
-
-        return false;
-    },
-    /**
-     * Initialize slider2 shape. Multiple initialization allowed.
-     * @method
-     * @param {object} model - model parent.
-     * @param {number} idx - index in shapes array.
-     */
-    init(model,idx) {
-        this.model = model;
-        if (!this.model.notifyValid(this.validate(idx))) return;
-
-        this.w0 = this.w0 || 0;
-    },
-    /**
-     * Check shape for dependencies on another element => called by mec.model
-     * @method
-     * @param {object} elem - element to test dependency for.
-     * @returns {boolean} true, dependency exists.
-     */
-    dependsOn(elem) {
-        return this.p === elem || this.wref === elem;
-    },
-    asJSON() {
-        return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
-                + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
-                + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
-                + ' }';
-    },
-    draw(g) {
-        const w0=this.w0||0;
-       const w = this.wref ? ()=>this.wref.w  : this.w0 || 0;
-       
-       // const w=((this.wref.w||0) + w0) ;
-        //console.log(`w0 ${w0} \n w ${this.wref.w}`);
-      //  g.use({grp:'slider',x:400,y:200, w:w});
-        g.beg({x:()=>this.p.x,y:()=>this.p.y,w:w})
-           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"@linkfill",lw:1,lj:"round"})
-  .end()
-    }
-}
 
 /**
  * @param {object} - line with fixed length
@@ -668,11 +601,11 @@ mec.shape.img = {
         {
            const px2 = this.p2.x,
                  py2 =  this.p2.y;
-            w= Math.atan2(py2-y1,px2-x1);
+            w=()=> Math.atan2(this.p2.y-this.p1.y,this.p2.x-this.p1.x);
           //  console.log("p2 defined");
         }
         else{
-            w=this.wref.w;
+            w=()=>this.wref.w;
             //console.log("w defined");
         }
        const x2=Math.cos(w)*this.len+x1;
@@ -683,16 +616,24 @@ mec.shape.img = {
        switch(this.lintype)
        {
            case'normal':
-                g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
+                g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
+                    g.lin({x1:0,y1:0,x2:this.len,y2:0});
+                g.end();
                 break;
             case 'grd1':
-                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'mid'});
+                g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
+                    g.grdline({x1:0,y1:0,x2:this.len,y2:0, typ:'mid'});
+                g.end();
                 break;
             case 'grd2':
-                g.grdline({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila', typ:'out'});
+                g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
+                    g.grdline({x1:0,y1:0,x2:this.len,y2:0, typ:'out'});
+                g.end();
                 break;
             default:
-                g.lin({x1:x1,y1:y1,x2:x2,y2:y2,ls:'lila'});
+                g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
+                    g.lin({x1:0,y1:0,x2:this.len,y2:0});
+                g.end();
                 break;
        }
 
@@ -737,6 +678,7 @@ mec.shape.img = {
         if (!this.model.notifyValid(this.validate(idx))) return;
 
         this.w0 = this.w0 || 0;
+        this.fill=this.fill||'white';
     },
     /**
      * Check shape for dependencies on another element => called by mec.model
@@ -751,49 +693,50 @@ mec.shape.img = {
         return '{ "type":"'+this.type+'","p":"'+this.p.id+'"'
                 + ((this.w0 && this.w0 > 0.0001) ? ',"w0":'+this.w0 : '')
                 + (this.wref ? ',"wref":"'+this.wref.id+'"' : '')
+                + ((this.fill ||this.fill==='white') ? ',"fill":"'+this.fill+'"' : '')
                 + ' }';
     },
     draw(g) {
         const w = this.wref ? ()=>this.wref.w : this.w0 || 0;
       //  g.use({grp:'slider',x:400,y:200});
         g.beg({x:()=>this.p.x,y:()=>this.p.y,w})
-           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:"white",lw:1,lj:"round"})
+           .rec({x:-16,y:-10,b:32,h:20,ls:"@nodcolor",fs:this.fill,lw:1,lj:"round"})
   .end()
     }
 }
 
 /**
- * @param {object} - Schieber shape.
+ * @param {object} - Ecke shape.
  * @property {string} p1 - referenced node id for position.
  * @property {string} [p2] - referenced constraint id for position2.
  * @property {string} [p3] - referenced constraint id for position3.
  */
- mec.shape.corner = {
+ mec.shape.Ecke = {
     /**
-     * Check Schieber shape properties for validity.
+     * Check Ecke shape properties for validity.
      * @method
      * @param {number} idx - index in shape array.
      * @returns {boolean} false - if no error / warning was detected.
      */
     validate(idx) {
         if (this.p1 === undefined)
-            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p1'};
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:'p1'};
         if (!this.model.nodeById(this.p1))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p1};
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:this.p1};
         else
             this.p1 = this.model.nodeById(this.p1);
 
         if (this.p2 === undefined)
-            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p2'};
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:'p2'};
         if (!this.model.nodeById(this.p2))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p2};
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:this.p2};
         else
             this.p2 = this.model.nodeById(this.p2);
 
         if (this.p3 === undefined)
-            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p3'};
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:'p3'};
         if (!this.model.nodeById(this.p3))
-            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p3};
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'Ecke',id:this.id,idx,reftype:'node',name:this.p3};
         else
             this.p3 = this.model.nodeById(this.p3);
 
@@ -810,7 +753,10 @@ mec.shape.img = {
         this.model = model;
         if (!this.model.notifyValid(this.validate(idx))) return;
 
+        this.fill=this.fill||'black';
+        this.size=this.size||'30';
         this.w0 = this.w0 || 0;
+        this.side=this.side||1;
     },
     /**
      * Check shape for dependencies on another element => called by mec.model
@@ -822,35 +768,193 @@ mec.shape.img = {
         return this.p1 === elem || this.p3 === elem|| this.p2 === elem;
     },
     asJSON() {
-        return '{ "type":"'+this.type+'","p1":"'+this.p1.id+'","p2":"'+this.p2.id+'","p3":"'+this.p3.id+'"}';
+      
+        let jsonString= '{ "type":"'+this.type+'","p1":"'+this.p1.id+'","p2":"'+this.p2.id+'","p3":"'+this.p3.id+'"';
+        jsonString+= (this.size ||this.size===20)? ' ,"size":"'+this.size+'"   '  : '' ;
+        jsonString+= (this.side ||this.side<0)? ' ,"side":"'+this.side+'"   '  : '' ;
+        jsonString+=' }';
+        return jsonString;
     },
     draw(g) {
-        const p1 = this.p1;     
-             const p2=this.p2;
-              const p3= this.p3;
-const l=100;//length
-        const alpha1=Math.atan2(p1.y-p2.y,p1.x-p2.x);
-        const alpha2=Math.atan2(this.p3.y-p2.y,this.p3.x-p2.x);
+        const alpha1=Math.atan2(this.p1.y-this.p2.y,this.p1.x-this.p2.x);
+        const alpha2=Math.atan2(this.p3.y-this.p2.y,this.p3.x-this.p2.x);
+        let dw=alpha2-alpha1;
+        if (this.side<1)
+            dw=2*Math.PI-dw;
+        g.beg({x:()=>this.p2.x,y:()=>this.p2.y,w:()=>Math.atan2(this.p1.y-this.p2.y,this.p1.x-this.p2.x)});
+        g.p().m({x:this.size,y:0})
+            .q({x1:this.size*Math.cos(dw/2*this.side)/2,y1:this.size*Math.sin(dw/2*this.side)/2,x:this.size*Math.cos(dw*this.side),y:this.size*Math.sin(dw*this.side)})            
+            .l({x:0,y:0})
+            .l({x:this.size,y:0})
+            .z()            
+            .fill({fs:this.fill});
+        g.end();        
+    }
+}
 
-        const A1={x:Math.cos(alpha1)*l+p2.x,y:Math.sin(alpha1)*l+p2.y};
-        const A2={x:Math.cos(alpha2)*l+p2.x,y:Math.sin(alpha2)*l+p2.y};
-        const cP={x:0.4*A1.x+0.4*A2.x+0.2*this.p2.x,y:0.4*A1.y+0.4*A2.y+0.2*this.p2.y};
-        const M={x:(A1.x+A2.y)/2+20,y:(A1.x+A2.y)/2};
+/**
+ * @param {object} - corner shape.
+ * @property {string} p - referenced node id for position.
+ * @property {string} [p1] - referenced node id for position2.
+ * @property {string} [p2] - referenced node id for position3.
+ * @property {string} [wref1] - referenced constraint id for angle1.
+ * @property {string} [wref2] - referenced constraint id for angle2.
+ */
+ mec.shape.corner = {
+    /**
+     * Check corner shape properties for validity.
+     * @method
+     * @param {number} idx - index in shape array.
+     * @returns {boolean} false - if no error / warning was detected.
+     */
+    validate(idx) {
+        if (this.p === undefined)
+            return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'p'};
+        if (!this.model.nodeById(this.p))
+            return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p};
+        else
+            this.p = this.model.nodeById(this.p);
+
+        //first reference
+        if (this.wref1 === undefined){
+            if (this.p1===undefined){
+                return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'wref1'};
+            }
+            else
+            {
+                if (!this.model.nodeById(this.p1))
+                    return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p1};
+                else
+                    this.p1 = this.model.nodeById(this.p1);
+            }
+        }
+        else {
+            if (!this.model.constraintById(this.wref1))
+                return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'constraint',name:this.wref1};
+            else
+                this.wref1 = this.model.constraintById(this.wref1);
+        }
+
+        //second reference
+        if (this.wref2 === undefined){
+            if (this.p2===undefined){
+                return { mid:'E_ELEM_REF_MISSING',elemtype:'corner',id:this.id,idx,reftype:'node',name:'wref2'};
+            }
+            else
+            {
+                if (!this.model.nodeById(this.p2))
+                    return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'node',name:this.p2};
+                else
+                    this.p2 = this.model.nodeById(this.p2);
+            }
+        }
+        else {
+            if (!this.model.constraintById(this.wref2))
+                return { mid:'E_ELEM_INVALID_REF',elemtype:'corner',id:this.id,idx,reftype:'constraint',name:this.wref2};
+            else
+                this.wref2 = this.model.constraintById(this.wref2);
+        }
+
+        
+
+
+        return false;
+    },
+    /**
+     * Initialize corner shape. Multiple initialization allowed.
+     * @method
+     * @param {object} model - model parent.
+     * @param {number} idx - index in shapes array.
+     */
+    init(model,idx) {
+        this.model = model;
+        if (!this.model.notifyValid(this.validate(idx))) return;
+
+        this.fill=this.fill||'black';
+        this.size=this.size||'30';
+        
+    },
+    /**
+     * Check shape for dependencies on another element => called by mec.model
+     * @method
+     * @param {object} elem - element to test dependency for.
+     * @returns {boolean} true, dependency exists.
+     */
+    dependsOn(elem) {
+
+        return this.p === elem || this.wref1 === elem|| this.wref2 === elem ||this.p1 === elem ||this.p2 === elem;
+    },
+    asJSON() {
+      
+        let jsonString= '{ "type":"'+this.type+'","p":"'+this.p.id+'"';
+        if (this.wref1===undefined)
+            jsonString+=',"p1":"'+this.p1.id+'"';
+        else
+            jsonString+=',"wref1":"'+this.wref1.id+'"';
+
+        if (this.wref2===undefined)
+            jsonString+=',"p2":"'+this.p2.id+'"';
+        else
+            jsonString+=',"wref2":"'+this.wref2.id+'"';
+
+        jsonString+= (this.size ||this.size===20)? ' ,"size":"'+this.size+'"   '  : '' ;
+        jsonString+=' }';
+        return jsonString;
+    },
+    draw(g) {
+        const w1=()=>this.wref1===undefined? Math.atan2(this.p1.x-this.p.x,this.p1.y-this.p.y) :this.wref1.w;
+       const w2=()=>this.wref2===undefined? Math.atan2(this.p2.x-this.p.x,this.p2.y-this.p.y) :this.wref2.w;
+       let dw=()=>w2-w1;
+       if (this.wref1===undefined && this.wref2===undefined)
+       {
+
+       }
+      const angle1=this.wref1===undefined? Math.atan2(this.p1.x-this.p.x,this.p1.y-this.p.y) :this.wref1.w;
+      const   angle2=this.wref2===undefined? Math.atan2(this.p2.x-this.p.x,this.p2.y-this.p.y) :this.wref2.w;
+   //    dw=angle2-angle1;
+        
+              const W1=w1;
+   // console.log(`w1${W1}`);
+    console.log(`w2${w2}`);
+    console.log(`dw${dw+2}`);
+/*const l=()=>this.size;//length
+        const alpha1=Math.atan2(this.p1.y-this.p2.y,this.p1.x-this.p2.x);
+        const alpha2=Math.atan2(this.p3.y-this.p2.y,this.p3.x-this.p2.x);
+
+        const A1={x:Math.cos(alpha1)*this.size+this.p2.x,y:Math.sin(alpha1)*this.size+this.p2.y};
+        const A2={x:Math.cos(alpha2)*this.size+this.p2.x,y:Math.sin(alpha2)*this.size+this.p2.y};
+        const M={x:(A1.x+A2.y)/2,y:(A1.x+A2.y)/2};
+        let cP={x:0.9*M.x+0.1*this.p2.x,
+                y:0.9*M.y+0.1*this.p2.y};
+         cP={x:0.4*A1.x+0.4*A2.x+0.2*this.p2.x,
+            y:0.4*A1.y+0.4*A2.y+0.2*this.p2.y};
+      //  cP={x:0.2*(this.p1.x + this.p3.x)+0.6*this.p2.x,            y:0.4*(this.p1.y + this.p3.y)+0.6*this.p2.y};
+        
         let toString=function (P){return `${Math.round(P.x)} ${Math.round(P.y)}`;};
         console.log(`alpha1=${Math.round(alpha1*180/Math.PI)} \n alpha2=${alpha2*180/Math.PI} `);
        console.log(`A1=${toString(A1)}\np2=${toString(p2)}\nA2=${toString(A2)}`);
-       console.log(`cP: ${toString(cP)}`)
-       // console.log(`A1=${A1.x} ${A1.y}\n A2=${A2.x} ${A2.y} `);
-        //console.log(`p1=${this.p1.x} ${this.p1.y}\n p2=${this.p2.x} ${this.p2.y} \n p3=${this.p3.x} ${this.p3.y}`);
-        g.ply({pts:[p2.x,p2.y,A1.x,A1.y,A2.x,A2.y],closed:true,ls:'red',lw:3,fs:'green'});
-        g.p().m({x:p2.x,y:p2.y})
-            .l({x:A1.x,y:A1.y})
-            .q({x1:cP.x,y1:cP.y,x:A2.x,y:A2.y})
-            //.l({x:A2.x,y:A2.y})
-            .l({x:p2.x,y:p2.y})
-            .z()            
-            .fill({fs:'green'})
-        .end();
+       console.log(`cP: ${toString(cP)}`);
+*/
+        g.beg({x:()=>this.p.x,y:()=>this.p.y,w:w1});
+            //g.cir({x:0,y:0,r:10,ls:'black',fs:'black'});
+            g.p().m({x:this.size,y:0})
+                .l({x:Math.cos(dw)*this.size,y:Math.sin(dw)*this.size})
+                .l({x:0,y:0})
+                //.q({x1:cP.x,y1:cP.y,x:A2.x,y:A2.y})
+                //.l({x:A2.x,y:A2.y})
+                .l({x:this.size,y:0})
+                .z()
+                .stroke({ls:'#888',lw:2,lc:'round',lj:'round'}) ;           
+            //.fill({fs:this.fill});
+        g.end();
+        g.beg({x:Math.cos(dw)*this.size,y:()=>this.p.y,w:w1});
+            const x1=()=>0,
+                x2=()=>0,
+                y1=()=>100,
+                y3=()=>1;
+                    g.lin({x1,y1,x2:100,y2:70});
+        g.end();
+        
 
         
     }

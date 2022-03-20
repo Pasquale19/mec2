@@ -901,11 +901,13 @@ mec.constraint = {
                             +  comma
                             +  (this.len.type === 'ref' ? this.len.ref.id : '')
                             +')';
-                    xid -= 3*sw;
+                    xid -= 3*sw;//sinus winkel
                     yid += 3*cw;
                 };
-                g.txt({str:idstr,x:xid,y:yid,thal:'center',tval:'middle',ls:this.model.env.show.txtColor})
+                g.txt({str:idstr,x:xid,y:yid,thal:'center',tval:'middle',ls:this.model.env.show.txtColor,
+                        font:this.model.env.show.font});
             }
+          
             return g;
         },
         draw(g) {

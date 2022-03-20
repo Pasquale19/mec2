@@ -35,7 +35,7 @@ get constraintlabels() { return this.hasAttribute('constraintlabels') || false; 
 set constraintlabels(q) { q ? this.setAttribute('constraintlabels', '') : this.removeAttribute('constraintlabels'); }
 get scale() { return this.getAttribute('scale') || 1; }
 set scale(q) { q ? this.setAttribute('scale', q) : this.removeAttribute('scale'); }
-get font() { return this.getAttribute('font') || "roboto 14px normal"; }
+get font() { return this.getAttribute('font') || "Times New Roman 14px normal"; }
 set font(q) { q ? this.setAttribute('font', q) : this.removeAttribute('font'); }
 get pause() { return this.hasAttribute('pause') || false; }
 set pause(q) { q ? this.setAttribute('pause', '') : this.removeAttribute('pause'); }
@@ -103,15 +103,16 @@ parseModel() {
     this._show.constraintVector = this.getAttribute('constraintVector') === "" ? true : false;  // boolean
     this._show.nodeInfo = this.hasAttribute('nodeinfo') && (this.getAttribute('nodeinfo') || 'id');  // string
     this._show.constraintInfo = this.hasAttribute('constraintinfo') && (this.getAttribute('constraintinfo') || 'id');  // string
-    //this._show.constraintVector = this.hasAttribute('constraintinfo') && (this.getAttribute('constraintinfo') || 'id');  // string
+    this._show.font=this.font;
     // set gravity from attribute
     this.gravity = this.getAttribute('gravity') === "" ? true : false;
 
     //setup model
     
 
-   
+    mec.m_u=0.05;
     this._model = mec.model.extend(this._model, this);
+    
     this._model.init();
 
 
@@ -153,15 +154,15 @@ parseModel() {
     this._cnv=this._shadow.getElementById('cnv');
     this._ctx = this._cnv.getContext('2d');
     //set font
-    this._ctx.font = this.font;
+    //this._ctx.font = this.font;
 
     
 
     
     //create g2 object
     this._viewport={x:this.x0||0,y:this.y0||0,scl:this.scale||1,cartesian:true};
-    console.log(`font${this.font}`);
-    this._g = g2().clr().view(this._viewport).beg({font:this.font});
+    
+    this._g = g2().clr().view(this._viewport);
 
     //add event listener
     this._cnv.addEventListener('click',e=> this.onclick(e) );

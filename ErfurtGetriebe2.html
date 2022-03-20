@@ -28,7 +28,7 @@
 
 </br>
 <mec-3 style="width:900px !important; height:1000px !important; border:1px solid #000000;" 
-x0="200" y0="200"  cartesian scale="0.8" nodelabels constraintlabels font="20px bold"
+x0="200" y0="200"  cartesian scale="0.8" nodelabels constraintlabels font="20px bold" pause gravity
 >
 {
     "id":"ErfurtGetriebe",
@@ -60,20 +60,23 @@ x0="200" y0="200"  cartesian scale="0.8" nodelabels constraintlabels font="20px 
       { "id":"l2","p1":"A0","p2":"A","len":{ "type":"const" } ,"ori":{ "type":"drive","Dt":10,"Dw":6.283185307179586 }},
       { "id":"l3","p1":"A","p2":"B","len":{ "type":"const" } },
       { "id":"l4","p1":"B0","p2":"B","len":{ "type":"const" } },
-      { "id":"l4_2","p1":"B0","p2":"C","len":{ "type":"const" },"ori":{ "type":"const","ref":"l4" } },
+      { "id":"l4_2","p1":"B0","p2":"C","len":{ "type":"const" } },
+      { "id":"l4_3","p1":"B","p2":"C","len":{ "type":"const" } },
       { "id":"l5","p1":"C","p2":"D","len":{ "type":"const" } },
       { "id":"6","p1":"D0","p2":"D","len":{ "type":"const" } },
-      { "id":"l6","p1":"D0","p2":"E","len":{ "type":"const" } ,"ori":{ "type":"const","ref":"6" }, "txt":" "},
-      { "id":"l6_2","p1":"D0","p2":"E","len":{ "type":"const" } ,"ori":{ "type":"const","ref":"6" }, "txt":" "},
-      { "id":"l6_3","p1":"D0","p2":"I","len":{ "type":"const" } ,"ori":{ "type":"const","ref":"6" }, "txt":" "},
+      { "id":"l6","p1":"D0","p2":"E","len":{ "type":"const" } , "txt":" "},
+      { "id":"l6_2","p1":"D0","p2":"I","len":{ "type":"const" } , "txt":" "},
+      { "id":"l6_3","p1":"D","p2":"E","len":{ "type":"const" } , "txt":" "},
+      { "id":"l6_4","p1":"I","p2":"E","len":{ "type":"const" } , "txt":" "},
       { "id":"7","p1":"E","p2":"F","len":{ "type":"const" } },
       { "id":"8","p1":"A0","p2":"F","len":{ "type":"const" } },
-      { "id":"l8_2","p1":"A0","p2":"G","len":{ "type":"const" },"ori":{ "type":"const","ref":"8" } ,"txt":" "},
-      { "id":"9","p1":"G","p2":"H","len":{ "type":"const" }},
+      { "id":"l8_2","p1":"A0","p2":"G","len":{ "type":"const" } ,"txt":" "},
+      { "id":"l8_3","p1":"F","p2":"G","len":{ "type":"const" },"hid":false},
+     
       { "id":"l10","p1":"H0","p2":"H","ori":{ "type":"const" }, "hid":true},
       { "id":"11","p1":"I","p2":"J","len":{ "type":"const" }},
       { "id":"12","p1":"A","p2":"J","len":{ "type":"const" }},
-      { "id":"13","p1":"K","p2":"J","len":{ "type":"const" }},
+ 
       { "id":"l14","p1":"K0","p2":"K","ori":{ "type":"const" }, "txt":" ", "hid":true}     
     ],
     "loads": [
