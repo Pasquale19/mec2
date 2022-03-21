@@ -1,3 +1,28 @@
+"use strict";
+/**
+ * g2.ext (c) 2015-21 Stefan Goessner
+ * @author Stefan Goessner
+ * @license MIT License
+ * @requires g2.core.js
+ * @typedef {g2}
+ * @description Additional methods for g2.
+ * @returns {g2}
+ */var g2=g2||{prototype:{}};g2.NONE=0;g2.OVER=1;g2.DRAG=2;g2.EDIT=4;g2.symbol=g2.symbol||{};g2.symbol.tick=g2().p().m({x:0,y:-2}).l({x:0,y:2}).stroke({lc:"round",lwnosc:true});g2.symbol.dot=g2().cir({x:0,y:0,r:2,ls:"transparent"});g2.symbol.sqr=g2().rec({x:-1.5,y:-1.5,b:3,h:3,ls:"transparent"});g2.symbol.nodcolor="#333";g2.symbol.nodfill="#dedede";g2.symbol.nodfill2="#aeaeae";g2.symbol.linkcolor="#666";g2.symbol.linkfill="rgba(225,225,225,0.75)";g2.symbol.dimcolor="darkslategray";g2.symbol.solid=[];g2.symbol.dash=[15,10];g2.symbol.dot=[4,4];g2.symbol.dashdot=[25,6.5,2,6.5];g2.symbol.labelSignificantDigits=3;g2.flatten=function(t){const s=Object.create(null);for(let e in t)if(typeof t[e]!=="function")s[e]=t[e];return s};g2.pointIfc={get p(){return{x:this.x,y:this.y}},get x(){return Object.getOwnPropertyDescriptor(this,"p")?this.p.x:0},get y(){return Object.getOwnPropertyDescriptor(this,"p")?this.p.y:0},set x(t){if(Object.getOwnPropertyDescriptor(this,"p"))this.p.x=t},set y(t){if(Object.getOwnPropertyDescriptor(this,"p"))this.p.y=t}};g2.labelIfc={getLabelOffset(){const t=this.label.off!==undefined?+this.label.off:1;return t+Math.sign(t)*(this.lw||2)/2},getLabelString(){let t=typeof this.label==="object"?this.label.str:typeof this.label==="string"?this.label:"?";if(t&&t[0]==="@"&&this[t.substr(1)]){t=t.substr(1);let s=this[t];s=Number.isInteger(s)?s:Number(s).toFixed(Math.max(g2.symbol.labelSignificantDigits-Math.log10(s),0));t=`${s}${t==="angle"?"°":""}`}return t},drawLabel(t){const s=this.label;const e=s.font||g2.defaultStyle.font;const r=parseInt(e);const o=this.getLabelString();const i=(o.length||1)*.65*r/2,n=1.25*r/2;const l=this.pointAt(s.loc||this.lbloc||"se");const y=this.getLabelOffset();const a={x:l.x+l.nx*(y+Math.sign(y)*i),y:l.y+l.ny*(y+Math.sign(y)*n)};if(s.border)t.ell({x:a.x,y:a.y,rx:i,ry:n,ls:s.fs||"black",fs:s.fs2||"#ffc"});t.txt({str:o,x:a.x,y:a.y,thal:"center",tval:"middle",fs:s.fs||this.ls||"black",font:s.font});return t}};g2.markIfc={markAt(t){const s=this.pointAt(t);const e=Math.atan2(s.ny,s.nx)+Math.PI/2;return{grp:this.getMarkSymbol(),x:s.x,y:s.y,w:e,scl:this.lw||1,ls:this.ls||"#000",fs:this.fs||this.ls||"#000"}},getMarkSymbol(){const t=this.mark;if(typeof t==="number"||!t)return g2.symbol.tick;if(typeof t.symbol==="object")return t.symbol;if(typeof t.symbol==="string")return g2.symbol[t.symbol]},drawMark(t,s=false){let e;if(Array.isArray(this.mark)){e=this.mark}else{const t=typeof this.mark==="object"?this.mark.count:this.mark;e=t?Array.from(Array(t)).map((e,r)=>r/(t-!s)):this.mark.loc}for(let s of e){t.use(this.markAt(s))}return t}};g2.prototype.cir.prototype=g2.mix(g2.pointIfc,g2.labelIfc,g2.markIfc,{w:0,lbloc:"c",get isSolid(){return this.fs&&this.fs!=="transparent"},get len(){return 2*Math.PI*this.r},get lsh(){return this.state&g2.OVER},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},get g2(){const t=g2();this.label&&t.ins(t=>this.drawLabel(t));this.mark&&t.ins(t=>this.drawMark(t,true));return()=>g2().cir(g2.flatten(this)).ins(t)},pointAt(t){const s=Math.SQRT2/2;const e={c:[0,0],e:[1,0],ne:[s,s],n:[0,1],nw:[-s,s],w:[-1,0],sw:[-s,-s],s:[0,-1],se:[s,-s]};const r=t+0===t?[Math.cos(t*2*Math.PI),Math.sin(t*2*Math.PI)]:e[t||"c"]||[0,0];return{x:this.x+r[0]*this.r,y:this.y+r[1]*this.r,nx:r[0],ny:r[1]}},hit({x:t,y:s,eps:e}){return this.isSolid?g2.isPntInCir({x:t,y:s},this,e):g2.isPntOnCir({x:t,y:s},this,e)},drag({dx:t,dy:s}){this.x+=t;this.y+=s}});g2.prototype.lin.prototype=g2.mix(g2.labelIfc,g2.markIfc,{get p1(){return{x1:this.x1,y1:this.y1}},get x1(){return Object.getOwnPropertyDescriptor(this,"p1")?this.p1.x:0},get y1(){return Object.getOwnPropertyDescriptor(this,"p1")?this.p1.y:0},set x1(t){if(Object.getOwnPropertyDescriptor(this,"p1"))this.p1.x=t},set y1(t){if(Object.getOwnPropertyDescriptor(this,"p1"))this.p1.y=t},get p2(){return{x2:this.x2,y2:this.y2}},get x2(){return Object.getOwnPropertyDescriptor(this,"p2")?this.p2.x:0},get y2(){return Object.getOwnPropertyDescriptor(this,"p2")?this.p2.y:0},set x2(t){if(Object.getOwnPropertyDescriptor(this,"p2"))this.p2.x=t},set y2(t){if(Object.getOwnPropertyDescriptor(this,"p2"))this.p2.y=t},isSolid:false,get len(){return Math.hypot(this.x2-this.x1,this.y2-this.y1)},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},get g2(){const t=g2();this.label&&t.ins(t=>this.drawLabel(t));this.mark&&t.ins(t=>this.drawMark(t));return()=>g2().lin(g2.flatten(this)).ins(t)},pointAt(t){let s=t==="beg"?0:t==="end"?1:t+0===t?t:.5,e=this.x2-this.x1,r=this.y2-this.y1,o=Math.hypot(e,r);return{x:this.x1+e*s,y:this.y1+r*s,nx:o?r/o:0,ny:o?-e/o:-1}},hit({x:t,y:s,eps:e}){return g2.isPntOnLin({x:t,y:s},{x:this.x1,y:this.y1},{x:this.x2,y:this.y2},e)},drag({dx:t,dy:s}){this.x1+=t;this.x2+=t;this.y1+=s;this.y2+=s}});g2.prototype.rec.prototype=g2.mix(g2.pointIfc,g2.labelIfc,g2.markIfc,{get len(){return 2*(this.b+this.h)},get isSolid(){return this.fs&&this.fs!=="transparent"},get lsh(){return this.state&g2.OVER},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},get g2(){const t=g2();this.label&&t.ins(t=>this.drawLabel(t));this.mark&&t.ins(t=>this.drawMark(t,true));return()=>g2().rec(g2.flatten(this)).ins(t)},lbloc:"c",pointAt(t){const s=t=>{const s={c:[0,0],e:[1,0],ne:[.95,.95],n:[0,1],nw:[-.95,.95],w:[-1,0],sw:[-.95,-.95],s:[0,-1],se:[.95,-.95]};if(s[t])return s[t];const e=2*Math.PI*t+pi/4;if(t<=.25)return[1/Math.tan(e),1];if(t<=.5)return[-1,-Math.tan(e)];if(t<=.75)return[-1/Math.tan(e),-1];if(t<=1)return[1,Math.tan(e)]};const e=s(t);return{x:this.x+(1+e[0])*this.b/2,y:this.y+(1+e[1])*this.h/2,nx:1-Math.abs(e[0])<.01?e[0]:0,ny:1-Math.abs(e[1])<.01?e[1]:0}},hit({x:t,y:s,eps:e}){return this.isSolid?g2.isPntInBox({x:t,y:s},{x:this.x+this.b/2,y:this.y+this.h/2,b:this.b/2,h:this.h/2},e):g2.isPntOnBox({x:t,y:s},{x:this.x+this.b/2,y:this.y+this.h/2,b:this.b/2,h:this.h/2},e)},drag({dx:t,dy:s}){this.x+=t;this.y+=s}});g2.prototype.arc.prototype=g2.mix(g2.pointIfc,g2.labelIfc,g2.markIfc,{get len(){return Math.abs(this.r*this.dw)},isSolid:false,get angle(){return this.dw/Math.PI*180},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},get g2(){const t=g2();this.label&&t.ins(t=>this.drawLabel(t));this.mark&&t.ins(t=>this.drawMark(t));return()=>g2().arc(g2.flatten(this)).ins(t)},lbloc:"mid",pointAt(t){let s=t==="beg"?0:t==="end"?1:t==="mid"?.5:t+0===t?t:.5,e=(this.w||0)+s*(this.dw||Math.PI*2),r=Math.cos(e),o=Math.sin(e),i=t==="c"?0:this.r;return{x:this.x+i*r,y:this.y+i*o,nx:r,ny:o}},hit({x:t,y:s,eps:e}){return g2.isPntOnArc({x:t,y:s},this,e)},drag({dx:t,dy:s}){this.x+=t;this.y+=s}});g2.prototype.hdl=function(t){return this.addCommand({c:"hdl",a:t})};g2.prototype.hdl.prototype=g2.mix(g2.prototype.cir.prototype,{r:5,isSolid:true,draggable:true,lbloc:"se",get lsh(){return this.state&g2.OVER},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},g2(){const{x:t,y:s,r:e,b:r=4,ls:o="black",fs:i="palegreen",sh:n}=this;return g2().cir({x:t,y:s,r:e,ls:o,fs:i,sh:n}).ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.nod=function(t={}){return this.addCommand({c:"nod",a:t})};g2.prototype.nod.prototype=g2.mix(g2.prototype.cir.prototype,{r:5,ls:"@nodcolor",fs:g2.symbol.nodfill,isSolid:true,lbloc:"se",g2(){return g2().cir({...g2.flatten(this),r:this.r*(this.scl!==undefined?this.scl:1)}).ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.dblnod=function({x:t=0,y:s=0}){return this.addCommand({c:"dblnod",a:arguments[0]})};g2.prototype.dblnod.prototype=g2.mix(g2.prototype.cir.prototype,{r:6,isSolid:true,g2(){return g2().beg({x:this.x,y:this.y}).cir({r:6,ls:"@nodcolor",fs:"@nodfill",sh:this.sh}).cir({r:3,ls:"@nodcolor",fs:"@nodfill2"}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.pol=function(t={}){return this.addCommand({c:"pol",a:t})};g2.prototype.pol.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){return g2().beg(g2.flatten(this)).cir({r:6,fs:"@fs2"}).cir({r:2.5,fs:"@ls",ls:"transparent"}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.gnd=function(t={}){return this.addCommand({c:"gnd",a:t})};g2.prototype.gnd.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){return g2().beg(g2.flatten(this)).cir({x:0,y:0,r:6}).p().m({x:0,y:6}).a({dw:Math.PI/2,x:-6,y:0}).l({x:6,y:0}).a({dw:-Math.PI/2,x:0,y:-6}).z().fill({fs:g2.symbol.nodcolor}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.nodfix=function(t={}){return this.addCommand({c:"nodfix",a:t})};g2.prototype.nodfix.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){return g2().beg(g2.flatten(this)).p().m({x:-8,y:-12}).l({x:0,y:0}).l({x:8,y:-12}).drw({fs:g2.symbol.nodfill2}).cir({x:0,y:0,r:this.r}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.nodflt=function(t={}){return this.addCommand({c:"nodflt",a:t})};g2.prototype.nodflt.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){return g2().beg(g2.flatten(this)).p().m({x:-8,y:-12}).l({x:0,y:0}).l({x:8,y:-12}).drw({ls:g2.symbol.nodcolor,fs:g2.symbol.nodfill2}).cir({x:0,y:0,r:this.r,ls:g2.symbol.nodcolor,fs:g2.symbol.nodfill}).lin({x1:-9,y1:-19,x2:9,y2:-19,ls:g2.symbol.nodfill2,lw:5}).lin({x1:-9,y1:-15.5,x2:9,y2:-15.5,ls:g2.symbol.nodcolor,lw:2}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.vec=function t(s){return this.addCommand({c:"vec",a:s})};g2.prototype.vec.prototype=g2.mix(g2.prototype.lin.prototype,{g2(){const{x1:t,y1:s,x2:e,y2:r,lw:o=1,ls:i="#000",ld:n=[],fs:l=i||"#000",lc:y="round",lj:a="round"}=this;const h=e-t,p=r-s,g=Math.hypot(h,p);const c=3*(1+o)>g?g/3:1+o;const x=()=>g2().p().m({x:0,y:0}).l({x:-5*c,y:c}).a({dw:-Math.PI/3,x:-5*c,y:-c}).z().drw({ls:i,fs:l,lc:y,lj:a});return g2().beg({x:t,y:s,w:Math.atan2(p,h),lc:y,lj:a}).p().m({x:0,y:0}).l({x:g-3*c,y:0}).stroke({ls:i,lw:o,ld:n}).use({grp:x,x:g,y:0}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.avec=function t(s){return this.addCommand({c:"avec",a:s})};g2.prototype.avec.prototype=g2.mix(g2.prototype.arc.prototype,{g2(){const{x:t,y:s,r:e,w:r,dw:o=0,lw:i=1,lc:n="round",lj:l="round",ls:y,fs:a=y||"#000",label:h}=this;const p=3*(1+i)>e?e/3:1+i,g=5*p/e;const c=()=>g2().p().m({x:0,y:2*p}).l({x:0,y:-2*p}).m({x:0,y:0}).l({x:-5*p,y:p}).a({dw:-Math.PI/3,x:-5*p,y:-p}).z().drw({ls:y,fs:a});return g2().beg({x:t,y:s,w:r,ls:y,lw:i,lc:n,lj:l}).arc({r:e,w:0,dw:o}).use({grp:c,x:e*Math.cos(o),y:e*Math.sin(o),w:o>=0?o+Math.PI/2-g/2:o-Math.PI/2+g/2}).end().ins(t=>h&&this.drawLabel(t))}});g2.prototype.dim=function t(s){return this.addCommand({c:"dim",a:s})};g2.prototype.dim.prototype=g2.mix(g2.prototype.lin.prototype,{pointAt(t){const s=g2.prototype.lin.prototype.pointAt.call(this,t);if(this.off){s.x+=this.off*s.nx;s.y+=this.off*s.ny}return s},g2(){const{x1:t,y1:s,x2:e,y2:r,lw:o=1,lc:i="round",lj:n="round",off:l=0,inside:y=true,ls:a,fs:h=a||"#000",label:p}=this;const g=e-t,c=r-s,x=Math.hypot(g,c);const d=3*(1+o)>x?x/3:1+o;const f=()=>g2().p().m({x:0,y:2*d}).l({x:0,y:-2*d}).m({x:0,y:0}).l({x:-5*d,y:d}).a({dw:-Math.PI/3,x:-5*d,y:-d}).z().drw({ls:a,fs:h});return g2().beg({x:t+l/x*c,y:s-l/x*g,w:Math.atan2(c,g),ls:a,fs:h,lw:o,lc:i,lj:n}).lin({x1:y?4*d:0,y1:0,x2:y?x-4*d:x,y2:0}).use({grp:f,x:x,y:0,w:y?0:Math.PI}).use({grp:f,x:0,y:0,w:y?Math.PI:0}).lin({x1:0,y1:l,x2:0,y2:0}).lin({x1:x,y1:l,x2:x,y2:0}).end().ins(t=>p&&this.drawLabel(t))}});g2.prototype.adim=function t(s){return this.addCommand({c:"adim",a:s})};g2.prototype.adim.prototype=g2.mix(g2.prototype.arc.prototype,{g2(){const{x:t,y:s,r:e,w:r,dw:o,lw:i=1,lc:n="round",lj:l="round",ls:y,fs:a=y||"#000",label:h}=this;const p=3*(1+i)>e?e/3:1+i,g=5*p/e;const c=()=>g2().p().m({x:0,y:2*p}).l({x:0,y:-2*p}).m({x:0,y:0}).l({x:-5*p,y:p}).a({dw:-Math.PI/3,x:-5*p,y:-p}).z().drw({ls:y,fs:a});const x=this.inside!==undefined&&this.outside===undefined?!this.inside:!!this.outside;return g2().beg({x:t,y:s,w:r,ls:y,lw:i,lc:n,lj:l}).arc({r:e,w:0,dw:o}).use({grp:c,x:e,y:0,w:!x&&o>0||x&&o<0?-Math.PI/2+g/2:Math.PI/2-g/2}).use({grp:c,x:e*Math.cos(o),y:e*Math.sin(o),w:!x&&o>0||x&&o<0?o+Math.PI/2-g/2:o-Math.PI/2+g/2}).end().ins(t=>h&&this.drawLabel(t))}});g2.prototype.origin=function(t={}){return this.addCommand({c:"origin",a:t})};g2.prototype.origin.prototype=g2.mix(g2.prototype.nod.prototype,{lbloc:"sw",g2(){const{x:t,y:s,w:e,ls:r="#000",lw:o=1}=this;return g2().beg({x:t,y:s,w:e,ls:r}).vec({x1:0,y1:0,x2:40,y2:0,lw:o,fs:"#ccc"}).vec({x1:0,y1:0,x2:0,y2:40,lw:o,fs:"#ccc"}).cir({x:0,y:0,r:o+1,fs:"#ccc"}).end().ins(t=>this.label&&this.drawLabel(t))}});g2.prototype.ply.prototype=g2.mix(g2.labelIfc,g2.markIfc,{get isSolid(){return this.closed&&this.fs&&this.fs!=="transparent"},get sh(){return this.state&g2.OVER?[0,0,5,"black"]:false},pointAt(t){const s=t==="beg"?0:t==="end"?1:t+0===t?t:.5,e=g2.pntItrOf(this.pts),r=[],o=[];for(let t=0;t<e.len;t++){const s=e((t+1)%e.len);r.push(e(t));o.push(Math.hypot(s.x-e(t).x,s.y-e(t).y))}this.closed||o.pop();const{t2:i,x:n,y:l,dx:y,dy:a}=(()=>{const t=s*o.reduce((t,s)=>t+s);for(let s=0,i=0;s<r.length;s++){i+=o[s];const n=e(s+1).x?e(s+1):e(0);if(i>=t){return{t2:1-(i-t)/o[s],x:r[s].x,y:r[s].y,dx:n.x-r[s].x,dy:n.y-r[s].y}}}})();const h=Math.hypot(y,a);return{x:(this.x||0)+n+y*i,y:(this.y||0)+l+a*i,nx:h?a/h:1,ny:h?y/h:0}},hit({x:t,y:s,eps:e}){return this.isSolid?g2.isPntInPly({x:t-this.x,y:s-this.y},this,e):g2.isPntOnPly({x:t-this.x,y:s-this.y},this,e)},drag({dx:t,dy:s}){this.x+=t;this.y+=s},get g2(){const t=g2();this.label&&t.ins(t=>this.drawLabel(t));this.mark&&t.ins(t=>this.drawMark(t,this.closed));return()=>g2().ply(g2.flatten(this)).ins(t)}});g2.prototype.use.prototype={get p(){return{x:this.x,y:this.y}},get x(){return Object.getOwnPropertyDescriptor(this,"p")?this.p.x:0},get y(){return Object.getOwnPropertyDescriptor(this,"p")?this.p.y:0},set x(t){if(Object.getOwnPropertyDescriptor(this,"p"))this.p.x=t},set y(t){if(Object.getOwnPropertyDescriptor(this,"p"))this.p.y=t},isSolid:false};g2.prototype.spline=function t({pts:s,closed:e,x:r,y:o,w:i}){arguments[0]._itr=g2.pntItrOf(s);return this.addCommand({c:"spline",a:arguments[0]})};g2.prototype.spline.prototype=g2.mix(g2.prototype.ply.prototype,{g2:function(){let{pts:t,closed:s,x:e,y:r,w:o,ls:i,lw:n,fs:l,sh:y}=this,a=this._itr,h;if(a){let t=[],p,g=a.len,c,x,d,f,b,u,m,w,M,O,P,k,I,j=e||r||o;h=g2();if(j)h.beg({x:e,y:r,w:o});h.p().m(a(0));for(let t=0;t<(s?g:g-1);t++){if(t===0){c=s?a(g-1):{x:2*a(0).x-a(1).x,y:2*a(0).y-a(1).y};x=a(0);d=a(1);f=g===2?s?a(0):{x:2*a(1).x-a(0).x,y:2*a(1).y-a(0).y}:a(2);b=Math.max(Math.hypot(x.x-c.x,x.y-c.y),Number.EPSILON);u=Math.max(Math.hypot(d.x-x.x,d.y-x.y),Number.EPSILON)}else{c=x;x=d;d=f;f=t===g-2?s?a(0):{x:2*a(g-1).x-a(g-2).x,y:2*a(g-1).y-a(g-2).y}:t===g-1?a(1):a(t+2);b=u;u=m}m=Math.max(Math.hypot(f.x-d.x,f.y-d.y),Number.EPSILON);w=Math.sqrt(b*u),M=Math.sqrt(u*m),O=2*b+3*w+u,P=2*m+3*M+u,k=3*(b+w),I=3*(m+M);h.c({x:d.x,y:d.y,x1:(-u*c.x+O*x.x+b*d.x)/k,y1:(-u*c.y+O*x.y+b*d.y)/k,x2:(-u*f.x+P*d.x+m*x.x)/I,y2:(-u*f.y+P*d.y+m*x.y)/I})}h.c(s?{x:a(0).x,y:a(0).y}:{x:a(g-1).x,y:a(g-1).y});if(s)h.z();h.drw({ls:i,lw:n,fs:l,sh:y});if(j)h.end()}return h}});"use strict";
+/**
+ * @author Pascal Schnabel
+ * @license MIT License
+ * @requires g2.core.js
+ * @requires g2.ext.js
+ * @typedef {g2}
+ * @description Mechanical extensions. (Requires cartesian coordinates)
+ * @returns {g2}
+ */g2.symbol.nodfill3="white";var g2=g2||{prototype:{}};g2.prototype.nodfix2=function(){return this.addCommand({c:"nodfix2",a:arguments[0]})};g2.prototype.nodfix2.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){const t=Object.assign({x:0,y:0,label:{str:"default",loc:"e",off:"2"}},this);const s=9;const e=12;let r=g2().beg({x:t.x,y:t.y}).lin({x1:3,y1:2,x2:s,y2:-e}).lin({x1:-3,y1:2,x2:-s,y2:-e}).lin({x1:-s-5,y1:-e,x2:s+5,y2:-e}).pol2({x:0,y:0,scl:1,fs:"@nodfill3",label:t.label});let o=s*2/3;for(let t=-s+2;t<s+5;t+=o){let s=6;r.lin({x1:t,y1:-e,x2:t-s,y2:-e-s})}r.end();r.ins(t=>this.label&&this.drawLabel(t));return r}});g2.prototype.parline=function(){return this.addCommand({c:"parline",a:arguments[0]})};g2.prototype.parline.prototype=g2.mix(g2.prototype.lin.prototype,{g2(){const t=Object.assign({i:2,sz:4,typ:"lin",ls:"@nodcolor",label:{str:""}},this);const{x1:s=0,sz:e,typ:r="lin"}=t;const o={x:t.x2-t.x1,y:t.y2-t.y1};const i=Math.atan2(o.y,o.x);const n=i+Math.PI/4;const l=Math.sqrt(o.x*o.x+o.y*o.y);const y=g2();y.lin({x1:t.x1,y1:t.y1,x2:t.x2,y2:t.y2,ls:t.ls});const a=.49;const h=1-a;let p=(h-a)/(t.i-1);const g={x:t.x1+l/2*Math.cos(i),y:t.y1+l/2*Math.sin(i)};for(let s=a;s<=h;s+=p){let o=s*l;if(r==="cir"){y.cir({x:g.x,y:g.y,r:e,ls:t.ls,ld:[1,0]})}else{const s={x:g.x+e*Math.cos(n),y:g.y+t.sz*Math.sin(n)};const r={x:g.x-t.sz*Math.cos(n),y:g.y-t.sz*Math.sin(n)};y.lin({x1:s.x,y1:s.y,x2:r.x,y2:r.y,ls:t.ls})}}y.ins(t=>this.label&&this.drawLabel(t));return y}});g2.prototype.grdlines=function(){return this.addCommand({c:"grdlines",a:arguments[0]})};g2.prototype.grdlines.prototype=g2.mix(g2.prototype.pol.prototype,{g2(){const t=Object.assign({x:0,y:0,ds:[8,11],w:0,lw:1,ls:"black",anz:4,label:{str:"default",loc:"e",off:"2"}},this);const s=t.ds[0];const e=t.ds[1];const{w:r,anz:o}=t;const i={x:Math.cos(r),y:Math.sin(r)};const n=r-Math.PI/4*3;const l=g2();for(let i=0;i<o;i+=1){let o=t.x+i*s*Math.cos(r);let y=t.y+i*s*Math.sin(r);let a=o+e*Math.cos(n);let h=y+e*Math.sin(n);l.lin({x1:o,y1:y,x2:a,y2:h,ls:t.ls,lw:t.lw})}l.end();return l}});g2.prototype.grdline=function(){return this.addCommand({c:"grdline",a:arguments[0]})};g2.prototype.grdline.prototype=g2.mix(g2.prototype.lin.prototype,{g2(){const t=Object.assign({x1:0,y1:0,x2:1,y2:1,ds:[8,11],lw:1.5,anz:5,w:0,typ:"out",label:{str:"default",loc:"mid",off:"3"}},this);const s={x:t.x2-t.x1,y:t.y2-t.y1};const e=Math.atan2(s.y,s.x);const{w:r,anz:o}=t;const i=Math.sqrt(s.x*s.x+s.y*s.y);const n=g2().beg({ls:t.ls}).lin({x1:t.x1,y1:t.y1,x2:t.x2,y2:t.y2,lw:t.lw*2});let l,y;switch(t.typ){case"mid":y=(i-8*(o+1)/2-i/2)/i;l={x:t.x1+Math.cos(e)*i*y,y:t.y1+Math.sin(e)*i*y};n.grdlines({x:l.x,y:l.y,w:e,ls:t.ls,lw:t.lw,anz:o});break;case"full":const s=t.ds[0];const r=t.ds[1];const a=e-Math.PI/4*3;let h=i/s-2;for(let o=0;o<h;o+=1){let i=t.x1+(o*s+s)*Math.cos(e);let l=t.y1+(o*s+s)*Math.sin(e);let y=i+r*Math.cos(a);let h=l+r*Math.sin(a);n.lin({x1:i,y1:l,x2:y,y2:h,ls:t.ls,lw:t.lw})}break;default:y=4*3/i;l={x:t.x1+Math.cos(e)*i*y,y:t.y1+Math.sin(e)*i*y};const p=(i-6*5)/i;const g={x:t.x1+Math.cos(e)*i*p,y:t.y1+Math.sin(e)*i*p};n.grdlines({x:l.x,y:l.y,w:e,ls:t.ls,lw:t.lw});n.grdlines({x:g.x,y:g.y,w:e,ls:t.ls,lw:t.lw});break}n.end();n.ins(t=>this.label&&this.drawLabel(t));return n}});g2.prototype.slider=function(){return this.addCommand({c:"slider",a:arguments[0]})};g2.prototype.slider.prototype=g2.mix(g2.prototype.rec.prototype,{g2(){const t=Object.assign({b:32,h:16,fs:"white",lw:.8,label:{str:"default",loc:"ne",off:"15"}},this);return g2().beg({x:t.x,y:t.y,w:t.w,fs:t.fs,lw:t.lw}).rec({x:-t.b/2,y:-t.h/2,b:t.b,h:t.h}).cir({x:0,y:0,r:t.h*.41,fs:"@fs2"}).cir({r:t.h*.1,fs:"@ls",ls:"transparent"}).end().cir({x:t.x,y:t.y,r:t.h*.41,fs:"@fs2",label:t.label})}});g2.prototype.pol2=function(t={}){return this.addCommand({c:"pol2",a:t})};g2.prototype.pol2.prototype=g2.mix(g2.prototype.nod.prototype,{g2(){const t=Object.assign({lw:2.2},this);return g2().beg(g2.flatten(this)).cir({r:6,fs:"@fs2",lw:t.lw}).cir({r:1.2,fs:"@ls",ls:"transparent",lw:t.lw/2}).end()}});"use strict";
+/**
+ * @author Pascal Schnabel
+ * @license MIT License
+ * @requires g2.core.js
+ * @requires g2.ext.js
+ */g2.symbol=g2.symbol||{};g2.symbol.poldot=g2().cir({x:0,y:0,r:1.32,ls:"transparent",fs:"black"});g2.symbol.nodfill3="white";g2.symbol.pol=g2().cir({x:0,y:0,r:6,ls:"black",lw:1.5,fs:"white"}).use({grp:"poldot"});g2.symbol.nodfix2=function(){const t=9,s=12;const e=g2().p().m({x:3,y:2}).l({x:-3,y:2}).l({x:-t,y:-s}).l({x:t,y:-s}).l({x:3,y:2}).z().stroke({ls:"black",lw:1.1,fs:"white"});const r=t*2/3;for(let o=-t+2;o<t+5;o+=r){let t=6;e.lin({x1:o,y1:-s,x2:o-t,y2:-s-t})}e.lin({x1:-t-3,y1:-s,x2:t+3,y2:-s});e.use({grp:"pol"});e.end();return e};g2.symbol.slider=function(){const t=g2();const s={b:32,h:16,fs:"white",lw:.8,label:{str:"default",loc:"ne",off:"15"}};return g2().rec({x:-s.b/2,y:-s.h/2,b:s.b,h:s.h,fs:"white"}).use({grp:"pol"}).end()};
 /**
  * mec (c) 2018-19 Stefan Goessner
  * @license MIT License
@@ -74,3 +99,486 @@
  * @license MIT License
  */
 "use strict";mec.msg.en={U_SEL_SECOND_NODE:()=>`Select second node.`,W_CSTR_NODES_COINCIDE:({cstr:t,p1:i,p2:e})=>`Warning: Nodes '${i}' and '${e}' of constraint '${t}' coincide.`,E_ELEM_ID_MISSING:({elemtype:t,idx:i})=>`${t} with index ${i} must have an id defined.`,E_ELEM_ID_AMBIGIOUS:({elemtype:t,id:i})=>`${t} id '${i}' is ambigious.`,W_ELEM_ID_MISSING:({elemtype:t,idx:i})=>`${t} with index ${i} should have an id defined.`,E_ELEM_REF_MISSING:({elemtype:t,id:i,idx:e,reftype:s,name:r})=>`${t} ${i?"'"+i+"'":"["+e+"]"} must have a ${s} reference '${r}' defined.`,E_ELEM_INVALID_REF:({elemtype:t,id:i,idx:e,reftype:s,name:r})=>`${s} reference '${r}' of ${t} ${i?"'"+i+"'":"["+e+"]"} is invalid.`,E_NODE_MASS_TOO_SMALL:({id:t,m:i})=>`Node's (id='${t}') mass of ${i} is too small.`,E_CSTR_NODE_MISSING:({id:t,loc:i,p:e})=>`${i} node '${e}' of constraint (id='${t}') is missing.`,E_CSTR_NODE_NOT_EXISTS:({id:t,loc:i,p:e,nodeId:s})=>`${i} node '${e}':'${s}' of constraint '${t}' does not exist.`,E_CSTR_REF_NOT_EXISTS:({id:t,sub:i,ref:e})=>`Reference to '${e}' in '${i} of constraint '${t}' does not exist.`,E_CSTR_DRIVEN_REF_TO_FREE:({id:t,sub:i,ref:e,reftype:s})=>`Driven ${i} constraint of '${t}' must not reference free ${s} of constraint '${e}'.`,W_CSTR_RATIO_IGNORED:({id:t,sub:i,ref:e,reftype:s})=>`Ratio value of driven ${i} constraint '${t}' with reference to '${s}' constraint '${e}' ignored.`,E_FORCE_VALUE_INVALID:({id:t,val:i})=>`Force value '${i}' of load '${t}' is not allowed.`,E_SPRING_RATE_INVALID:({id:t,val:i})=>`Spring rate '${i}' of load '${t}' is not allowed.`,E_POLY_PTS_MISSING:({id:t,idx:i})=>`Polygon shape ${t?"'"+t+"'":"["+i+"]"} must have a points array 'pts' defined.`,E_POLY_PTS_INVALID:({id:t,idx:i})=>`Polygon shape ${t?"'"+t+"'":"["+i+"]"} must have a points array 'pts' with at least two points defined.`,E_IMG_URI_MISSING:({id:t,idx:i})=>`Image shape ${t?"'"+t+"'":"["+i+"]"} must have an uniform resource locator 'uri' defined.`,E_ALY_REF_MISSING:({id:t,idx:i})=>({elemtype:t,id:i,idx:e,reftype:s,name:r})=>`${t} ${i?"'"+i+"'":"["+e+"]"} must have with '${r}' an existing property name of a ${s} specified. One of ${keys} are supported.`,E_ALY_REF_INVALID:({id:t,idx:i})=>({elemtype:t,id:i,idx:e,reftype:s,name:r})=>`${t} ${i?"'"+i+"'":"["+e+"]"} has with '${r}' an invalid property name of a ${s} specified. One of ${keys} are supported.`};
+class MecSlider extends HTMLElement {
+    static get observedAttributes() {
+        return ['width','min','max','step','value','bubble'];
+    }
+
+    constructor() {
+        super();
+        this._root = this.attachShadow({ mode:'open' });
+    }
+
+    // html slider attributes 
+    get width() { return +this.getAttribute("width") || 100 }
+    get min() { return +this.getAttribute("min") || 0 }
+    get max() { return +this.getAttribute("max") || 100 }
+    get step() { return +this.getAttribute("step") || 1 }
+    get value() { return +this.getAttribute('value') || 0; }
+    set value(q) {
+        q = this._nfrac > 0 ? q.toFixed(this._nfrac) : q;
+        this.setAttribute('value',q);
+        this._slider.setAttribute('value',this._slider.value = q);
+        this._slider.value = q;
+        this.dispatchEvent(new CustomEvent('input', { detail: q }));
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements
+    connectedCallback() { this.init(); }
+    disconnectedCallback() { this.deinit(); }
+    attributeChangedCallback(name, oldval, val) {}
+
+    init() {
+        this.bubble = this.hasAttribute("bubble");
+        this._root.innerHTML = MecSlider.template({
+            id: this.id,
+            width: this.width,
+            height:this.height,
+            min:this.min,
+            max:this.max,
+            step:this.step,
+            value:this.value,
+            darkmode:this.darkmode,
+            bubble:this.bubble
+        });
+        // cache elements of shadow dom
+        this._slider = this._root.querySelector('input');
+        this._forbtn = this._root.querySelector('.forward');
+        this._revbtn = this._root.querySelector('.reverse');
+        // install instance specific function pointers from prototype methods ...
+        this._sliderInputHdl  = this.sliderInput.bind(this);
+        this._startForwardHdl = this.startForward.bind(this);
+        this._startReverseHdl = this.startReverse.bind(this);
+        this._endForwardHdl   = this.endForward.bind(this);
+        this._endReverseHdl   = this.endReverse.bind(this);
+        // install initial event listeners
+        this._slider.addEventListener("input", this._sliderInputHdl, false);
+        this._forbtn.addEventListener("pointerup", this._startForwardHdl, false);
+        this._revbtn.addEventListener("pointerup", this._startReverseHdl, false);
+        // cache instant specific values
+        this._nfrac = Math.max(0,Math.ceil(-Math.log10(this.step)));  // number of digits after decimal point of step
+        // init value bubble
+        if (this.bubble) {
+            this._bubble = this._root.getElementById('bubble');
+            this._bubbleShowHdl = this.showBubble.bind(this);
+            this._bubbleHideHdl = this.hideBubble.bind(this);
+
+            this._slider.addEventListener("focusin", this._bubbleShowHdl, false);
+            this._slider.addEventListener("focusout", this._bubbleHideHdl, false);
+        }
+    }
+    deinit() { 
+        // remove event listeners
+        this._slider.removeEventListener("input", this.sliderInputHdl, false);
+        this._forbtn.removeEventListener("pointerup", this._startForwardHdl, false);
+        this._forbtn.removeEventListener("pointerup", this._endForwardHdl, false);
+        this._revbtn.removeEventListener("pointerup", this._startReverseHdl, false);
+        this._revbtn.removeEventListener("pointerup", this._endReverseHdl, false);
+        if (this.bubble) {
+            this._slider.removeEventListener("focusin", this._bubbleShowHdl, false);
+            this._slider.removeEventListener("focusout", this._bubbleHideHdl, false);
+        }
+    // delete cached data
+        delete this._bubble;
+        delete this._slider;
+        delete this._forbtn;
+        delete this._revbtn;
+    }
+
+    sliderInput() {
+        this.value = +this._slider.value;
+        if (this._bubble)
+            this.placeBubble();
+    }
+    showBubble() {
+        this._bubble.style.display = 'block';
+        this.placeBubble();
+    }
+    hideBubble() { 
+        this._bubble.style.display = 'none';
+    }
+    placeBubble() {
+        const thumbWidth = 12,  // width of thumb estimated .. depends on browser
+              sliderBox = this._slider.getBoundingClientRect(),
+              bubbleBox = this._bubble.getBoundingClientRect(),
+              thumbLeft = Math.floor(sliderBox.left + thumbWidth/2),
+              thumbRange = sliderBox.width - thumbWidth;
+        this._bubble.style.left = Math.floor(thumbLeft - bubbleBox.width/2 + thumbRange*Math.max(0,Math.min(1,(this.value - this.min)/(this.max - this.min))))+'px';
+        this._bubble.style.top = Math.floor(sliderBox.top - bubbleBox.height)+'px';
+        this._bubble.innerHTML = this.getAttribute('value');
+    }
+    startForward() {
+        if (this.value < this.max) {
+            // change forward-button to stop-button
+            this._forbtn.removeEventListener("pointerup", this._startForwardHdl, false);
+            this._forbtn.innerHTML = MecSlider.stopsym;
+            this._forbtn.addEventListener("pointerup", this._endForwardHdl, false);
+            // deactivate reverse-button
+            this._revbtn.removeEventListener("pointerup", this._startReverseHdl, false);
+            this._revbtn.style.color = "#888";  // show disabled !
+            // focus to slider ... disable it
+            this._slider.focus();
+            this._slider.setAttribute('disabled',true);
+            this.showBubble();                  // needed for chrome !
+
+            this.goFwd();
+        }
+    }
+    endForward() {
+        // change stop-button to forward-button
+        this._forbtn.removeEventListener("pointerup", this._endForwardHdl, false);
+        this._forbtn.innerHTML = MecSlider.fwdsym;
+        this._forbtn.addEventListener("pointerup", this._startForwardHdl, false);
+        // reactivate reverse-button
+        this._revbtn.addEventListener("pointerup", this._startReverseHdl, false);
+        this._revbtn.style.color = "inherit";
+        // focus to slider ... enable it
+        this._slider.focus();
+        this._slider.removeAttribute('disabled');
+        window.clearTimeout(this.timeoutId);
+    }
+    fwdStep() {
+        let delta = this.value + this.step < this.max ? this.step : Math.max(this.max - this.value,0);
+        if (delta) { // proceed ...
+            this.value += delta;
+            if (this._bubble)
+                this.placeBubble();
+        }
+        else
+            this.endForward();
+        return !!delta;
+    }
+    goFwd() {
+        // '.. loop with guarantee that the previous interval has completed before recursing.'
+        // see https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
+        this.timeoutId = window.setTimeout(() => {
+            if (this.fwdStep())
+                this.goFwd();
+        }, 20);
+    }
+    startReverse() {
+        if (this.value >= this.min) {
+            // change reverse-button to stop-button
+            this._revbtn.removeEventListener("pointerup", this._startReverseHdl, false);
+            this._revbtn.innerHTML = MecSlider.stopsym;
+            this._revbtn.addEventListener("pointerup", this._endReverseHdl, false);
+            // deactivate forward-button
+            this._forbtn.removeEventListener("pointerup", this._startForwardHdl, false);
+            this._forbtn.style.color = "#888";  // show disabled !
+            // focus to slider ... disable it
+            this._slider.focus();
+            this._slider.setAttribute('disabled',true);
+            this.showBubble();                  // needed for chrome !
+
+            this.goRev();
+        }
+    }
+    endReverse() {
+        // change stop-button to reverse-button
+        this._revbtn.removeEventListener("pointerup", this._endReverseHdl, false);
+        this._revbtn.innerHTML = MecSlider.revsym;
+        this._revbtn.addEventListener("pointerup", this._startReverseHdl, false);
+        // reactivate forward-button
+        this._forbtn.addEventListener("pointerup", this._startForwardHdl, false);
+        this._forbtn.style.color = "inherit";
+        // focus to slider ... enable it
+        this._slider.focus();
+        this._slider.removeAttribute('disabled');
+
+        window.clearTimeout(this.timeoutId);
+    }
+    revStep() {
+        let delta = this.value - this.step >= this.min ? -this.step : -Math.max(this.min - this.value,0);
+        if (delta) { // proceed ...
+            this.value += delta;
+            if (this._bubble)
+                this.placeBubble();
+        }
+        else
+            this.endReverse();
+        return !!delta;
+    }
+    goRev() {
+        // '.. loop with guarantee that the previous interval has completed before recursing.'
+        // see https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setInterval
+        this.timeoutId = window.setTimeout(() => {
+            if (this.revStep())
+                this.goRev();
+        }, 20);
+    }
+
+    static template({id,width,min,max,step,value,bubble}) {
+return `
+<style>
+   ::shadow {
+       display:inline-flex; 
+       width:${width}px; 
+       align-items:center;
+    }
+
+    .slider {
+       width: 100%; 
+       font-size: 10pt;
+    }
+
+    input {
+        min-width: calc(100% - 2.5em);
+        margin: 0;
+        padding: 0;
+        vertical-align: middle;
+    }
+
+   .forward, .reverse {
+       font-family: Consolas;
+       font-size: 10pt;
+       vertical-align: middle;
+       cursor: default;
+       user-select: none;
+       -moz-user-select: none;
+   }
+
+   ${bubble?`
+   #bubble {
+        color: black;
+        background-color: #f8f8f888;
+        border: 1px solid #c8c8c8;
+        border-radius: 2px 2px 10px 10px;
+        font-family: Consolas;
+        font-size: 10pt;
+        text-align: center;
+        padding: 2px;
+        position: absolute;
+        left: 0px;
+        top: 0px;
+        display: none;
+        pointer-events:none`
+   :''}
+</style>
+<div class="slider">
+    <span class="reverse">${MecSlider.revsym}</span>
+    <input type="range" min="${min}" max="${max}" value="${value}" step="${step}"/>
+    <span class="forward">${MecSlider.fwdsym}</span>
+    ${bubble?`<div id="bubble">?</div>`:''}
+</div>`
+}
+}
+
+MecSlider.fwdsym = '&#9655;'
+MecSlider.revsym = '&#9665;'
+MecSlider.stopsym = '&#9744;'
+
+customElements.define('mec-slider', MecSlider);
+
+//console.log('mec3.element.js loaded');
+/*ignore jslint start*/
+class Mec3Element extends HTMLElement{
+
+  static get observedAttributes() {
+    return ['width', 'height', 'cartesian', 'grid', 'x0', 'y0',
+        'darkmode', 'gravity', 'hidenodes', 'hideconstraints',
+        'nodelabels', 'constraintlabels', 'loadlabels',
+        'nodeinfo', 'constraintinfo','constraintVector','scale','font','pause'];
+}
+
+constructor(){
+  super();
+  this._shadow = this.attachShadow({mode: 'open'});
+  
+}
+//#region region getter and setter*/
+get width() { return this.style.width||+this.getAttribute('width') || 301; }
+set width(q) { if (q) this.setAttribute('width', q); }
+get height() { return this.style.height||+this.getAttribute('height') || 201; }
+set height(q) { if (q) this.setAttribute('height', q); }
+get x0() { return (+this.getAttribute('x0')) || 0; }
+set x0(q) { if (q) this.setAttribute('x0', q); }
+get y0() { return (+this.getAttribute('y0')) || 0; }
+set y0(q) { if (q) this.setAttribute('y0', q); }
+get show() { return this._show; }
+get grid() { return this.hasAttribute('grid') || false; }
+set grid(q) { q ? this.setAttribute('grid', '') : this.removeAttribute('grid'); }
+get pausing(){return this._ispaused;}
+set pausing(q) {this._ispaused=q;}
+get constraintVector() { return this.hasAttribute('constraintVector') || false; }
+set constraintVector(q) { q ? this.setAttribute('constraintVector', '') : this.removeAttribute('constraintVector'); }
+get constraintlabels() { return this.hasAttribute('constraintlabels') || false; }
+set constraintlabels(q) { q ? this.setAttribute('constraintlabels', '') : this.removeAttribute('constraintlabels'); }
+get scale() { return this.getAttribute('scale') || 1; }
+set scale(q) { q ? this.setAttribute('scale', q) : this.removeAttribute('scale'); }
+get font() { return this.getAttribute('font') || "Times New Roman 14px normal"; }
+set font(q) { q ? this.setAttribute('font', q) : this.removeAttribute('font'); }
+get pause() { return this.hasAttribute('pause') || false; }
+set pause(q) { q ? this.setAttribute('pause', '') : this.removeAttribute('pause'); }
+
+//#endregion
+parseModel() {
+  try { this._model = JSON.parse(this.innerHTML); return true; }
+  catch (e) { this._shadow.innerHTML = e.message; }
+  return false;
+}
+
+
+
+  onclick(e){
+       //this.cnvclicked();
+    
+       if (this._ispaused===undefined) this._ispaused=false;
+      this._ispaused=!this._ispaused;
+      if (!this._ispaused)
+      {    
+          console.log(`start: ${this._ispaused}`);
+          window.requestAnimationFrame(() => this.render()); //start again
+      }   
+  }
+  // Pan the view when user moves the pointer with any button pressed.
+ onmove(e) {
+  if (e.buttons !== undefined ? e.buttons : (e.which || e.button)) {
+      const dx = e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+            dy = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+            this._viewport.x+=dx,this._viewport.y+=dy;                        // g2.view uses device coordinates
+  dirty = true;
+  }
+}
+// Zoom the view when user uses the mouse wheel.
+ onwheel(e) {
+  const delta = Math.max(-1,Math.min(1,e.deltaY||e.wheelDelta));
+          vw.scl *= delta > 0?9/10:10/9;              // g2.view again uses device coordinates
+          vw.x = e.clientX - Math.floor(viewport.left),
+          vw.y = e.clientY - Math.floor(viewport.top),
+  dirty = true;
+}
+   render() {
+      if (this._ispaused) return;
+      this._model.tick(1/60);  
+      this._g.exe(this._ctx);
+      window. requestAnimationFrame(() => this.render());
+  }
+
+/*
+    connectedCallback() fires when the element is inserted into the DOM. It's a good place to set the initial role, tabindex, internal state, and install event listeners.
+    **/
+    connectedCallback() {
+
+      //console.log('connected Callback');
+      //create model
+      if (!this.parseModel()) return;
+      this._ispaused=this.hasAttribute('pause')||false;
+     //install show from attributes
+    this._show = Object.create(Object.getPrototypeOf(mec.show), Object.getOwnPropertyDescriptors(mec.show)); // copy defaults
+    this._show.darkmode = this.getAttribute('darkmode') === "" ? true : false;  // boolean
+    this._show.nodes = this.getAttribute('hidenodes') === "" ? false : true;  // boolean
+    this._show.constraints = this.getAttribute('hideconstraints') === "" ? false : true;  // boolean
+    this._show.nodeLabels = this.getAttribute('nodelabels') === "" ? true : false;  // boolean
+    this._show.constraintLabels = this.getAttribute('constraintlabels') === "" ? true : false;  // boolean
+    this._show.constraintVector = this.getAttribute('constraintVector') === "" ? true : false;  // boolean
+    this._show.nodeInfo = this.hasAttribute('nodeinfo') && (this.getAttribute('nodeinfo') || 'id');  // string
+    this._show.constraintInfo = this.hasAttribute('constraintinfo') && (this.getAttribute('constraintinfo') || 'id');  // string
+    this._show.font=this.font;
+    // set gravity from attribute
+    this.gravity = this.getAttribute('gravity') === "" ? true : false;
+
+    //setup model
+    
+
+    mec.m_u=0.05;
+    this._model = mec.model.extend(this._model, this);
+    
+    this._model.init();
+
+
+    // find input-drives
+    this._inputs = this._model.inputControlledDrives;
+    // find chart elements which are refered to by the model
+    this._charts = this._model.views.filter(v => v.as === 'chart' && v.canvas);
+    this._chartRefs = this._charts.map(c => document.getElementById(c.canvas));
+    // Apply functions to html elements.
+    for (const idx in this._chartRefs) {
+        const elm = this._chartRefs[idx];
+        const chart = this._charts[idx];
+        Object.assign(elm, chart.graph);
+        elm.nod = () => {
+            // this._charts[idx].previewNod;
+            const data = chart.graph.funcs[0].data;
+            const pt = data.findIndex(data => data.t > chart.local_t);
+            return pt === -1
+                ? { scl: 0 } // If point is out of bounds
+                : {
+                    x: (data[pt].x - elm._chart.xmin) * (elm._chart.b / 
+                        (elm._chart.xmax - elm._chart.xmin)) + elm._chart.x,
+                    y: (data[pt].y - elm._chart.ymin) * (elm._chart.h /
+                        (elm._chart.ymax - elm._chart.ymin)) + elm._chart.y,
+                    // y: elm._chart.y + elm._chart.h,
+                    scl: 1
+                };
+        }
+    }
+
+    //create shadow dom
+    this._shadow.innerHTML = Mec3Element.template({
+      width: this.width,
+      height: this.height
+    });
+
+
+    // get elements from the shadow dom
+    this._cnv=this._shadow.getElementById('cnv');
+    this._ctx = this._cnv.getContext('2d');
+    //set font
+    //this._ctx.font = this.font;
+
+    
+
+    
+    //create g2 object
+    this._viewport={x:this.x0||0,y:this.y0||0,scl:this.scale||1,cartesian:true};
+    
+    this._g = g2().clr().view(this._viewport);
+
+    //add event listener
+    this._cnv.addEventListener('click',e=> this.onclick(e) );
+        
+    if (this.grid) this._g.grid({ color:'black' });
+    //draw model and start simulation
+    this._model.draw(this._g);
+    this._g.exe(this._ctx);                              // append model-graphics to graphics-obj
+    if (!this.pause){window. requestAnimationFrame(() => this.render());}
+    
+ 
+    }
+    disconnectedCallback() {
+      this._cnv.removeEventListener("click", this.cnvclicked, false);
+  }
+  attributeChangedCallback(name, oldval, val) {
+    if (this._shadow && this._shadow.getElementById('cnv')) {
+        if (name === 'width') {  // todo: preserve minimum width
+            this._shadow.getElementById('cnv').setAttribute('width', val);
+            this._shadow.querySelector('.status').style.width = val + 'px';
+        }
+        if (name === 'height')   // todo: preserve minimum height
+            this._shadow.getElementById('cnv').setAttribute('height', val);
+    }
+}
+
+/**
+ * html template of the object
+ * @param {number} - width of canvas 
+ * @returns 
+ */
+  static template({width,height}) {
+    return `
+<style>
+#cnv {
+    background-color: white;
+
+    touch-action: none;
+}
+</style>
+<canvas id="cnv" width="${width}" height="${height}" touch-action="none"></canvas><br>
+<input id="slider" type="range"></input>
+`
+  }
+}
+
+window.onload=()=>{window.customElements.define('mec-3', Mec3Element);}
+    
+/*ignore jslint end*/ 
