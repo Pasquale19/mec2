@@ -4,10 +4,9 @@
 
 <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
 <script src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/Pasquale19/customG2@master/release/g2Extension.min.js"></script>
-<!--<script src="../../customG2/g2.ext.js"></script>
+<script src="../../customG2/g2.ext.js"></script>
 <script src="../../customG2/g2ExtraSymbols.js"></script>
-<script src="../../customG2/g2Extras.js"></script>-->
+<script src="../../customG2/g2Extras.js"></script>
 <script async src="src\mec.core.js"></script>
 <script async src="src\mec.model.js"></script>
 <script async src="src\mec.msg.en.js"></script>
@@ -23,16 +22,40 @@
 <script async src="src/mec3.htmlelement.js"></script>
 
 
-<h1>ANA078</h1>
+<h1>Getriebesystematik</h1>
 
 <!--<canvas onclick="clickCanvas()" style="border: 1px; border-color: black; width: 100px; height: 100px; background-color: aqua;" ></canvas>-->
 
 </br>
-<mec-3 style="width:900px !important; height:1000px !important; border:1px solid #000000;" 
-x0="00" y0="00"  cartesian scale="1.2" nodelabels constraintlabels font="Times New Roman 16px cursive" gravity pause
+<mec-3 style="width:400px !important; height:400px !important; border:1px solid #000000;" 
+x0="60" y0="60" cartesian scale="1.2" nodelabels constraintlabels font="Times New Roman 16px cursive" gravity pause
 >
-{
-    "id":"ANA078",
+{   "id":"Parallelkurbel",
+    "nodes":[
+        {"id":"A0","base":true,"idloc":"sw"},
+        {"id":"B0","x":100,"base":true,"idloc":"se"},
+        {"id":"A","y":120,"idloc":"nw"},
+        {"id":"B","x":100,"y":120,"idloc":"ne"}
+    ],
+    "constraints":[{
+            "id":"a","p1":"A0","p2":"A","len":{"type":"const"},
+            "ori":{"type":"drive","func":"linear","Dt":5},
+            "lw":16, "ls":"#ff770066"
+        }, {
+            "id":"b","p1":"A","p2":"B","len":{"type":"const"},
+            "lw":16, "ls":"#ff770066"
+        }, {
+            "id":"c","p1":"B0","p2":"B","len":{"type":"const"},
+            "lw":16, "ls":"#ff770066"
+        }
+    ]
+}
+</mec-3>
+</br>
+<mec-3 style="width:900px !important; height:1000px !important; border:1px solid #000000;" 
+x0="60" y0="60" cartesian scale="1.2" nodelabels constraintlabels font="Times New Roman 16px cursive" gravity pause
+>
+{"id":"ANA078",
  
     "nodes": [
     { "id" :"A0" ,"x":345.18,"y":603.9,"base":true, "optic":"FG" , "idloc":"e" },
