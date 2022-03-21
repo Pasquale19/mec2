@@ -1,6 +1,7 @@
 /*immadietly caled function*/
 (function() {
     console.log('Extra Shapes loaded');
+    alert(` Extra Shapes added to package.json?`);
   })()
 
 
