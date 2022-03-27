@@ -3790,7 +3790,7 @@ mec.shape.img = {
         return false;
     },
     /**
-     * Initialize corner shape. Multiple initialization allowed.
+     * Initialize Ecke shape. Multiple initialization allowed.
      * @method
      * @param {object} model - model parent.
      * @param {number} idx - index in shapes array.
@@ -3800,7 +3800,7 @@ mec.shape.img = {
         if (!this.model.notifyValid(this.validate(idx))) return;
 
         this.fill=this.fill||'black';
-        this.size=this.size||'30';
+        this.size=this.size||'45';
         this.w0 = this.w0 || 0;
         this.side=this.side||1;
     },
@@ -3816,7 +3816,7 @@ mec.shape.img = {
     asJSON() {
       
         let jsonString= '{ "type":"'+this.type+'","p1":"'+this.p1.id+'","p2":"'+this.p2.id+'","p3":"'+this.p3.id+'"';
-        jsonString+= (this.size ||this.size===20)? ' ,"size":"'+this.size+'"   '  : '' ;
+        jsonString+= (this.size ||this.size===45)? ' ,"size":"'+this.size+'"   '  : '' ;
         jsonString+= (this.side ||this.side<0)? ' ,"side":"'+this.side+'"   '  : '' ;
         jsonString+=' }';
         return jsonString;
@@ -3829,7 +3829,8 @@ mec.shape.img = {
             dw=2*Math.PI-dw;
         g.beg({x:()=>this.p2.x,y:()=>this.p2.y,w:()=>Math.atan2(this.p1.y-this.p2.y,this.p1.x-this.p2.x)});
         g.p().m({x:this.size,y:0})
-            .q({x1:this.size*Math.cos(dw/2*this.side)/2,y1:this.size*Math.sin(dw/2*this.side)/2,x:this.size*Math.cos(dw*this.side),y:this.size*Math.sin(dw*this.side)})            
+            //.q({x1:this.size*Math.cos(dw/2*this.side)/2,y1:this.size*Math.sin(dw/2*this.side)/2,x:this.size*Math.cos(dw*this.side),y:this.size*Math.sin(dw*this.side)})    //first Point is control point        
+            .q({x1:0,y1:0,x:this.size*Math.cos(dw*this.side),y:this.size*Math.sin(dw*this.side)})
             .l({x:0,y:0})
             .l({x:this.size,y:0})
             .z()            

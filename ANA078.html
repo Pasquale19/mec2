@@ -2,12 +2,15 @@
     <meta charset='utf-8'>
 </head>
 
-<script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
-<script src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
-<!--<script src="https://cdn.jsdelivr.net/gh/Pasquale19/customG2@master/release/g2Extension.min.js"></script>-->
+<script async src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+<script async src="https://cdn.jsdelivr.net/gh/goessner/g2/dist/g2.js"></script>
+
+<script async src="https://cdn.jsdelivr.net/gh/Pasquale19/customG2@master/release/g2Extension.min.js"></script>
+<script async src="https://cdn.jsdelivr.net/gh/Pasquale19/mec2@master/release/mec3.html.js"></script>
 <!--<script src="../../customG2/g2.ext.js"></script>
 <script src="../../customG2/g2ExtraSymbols.js"></script>
-<script src="../../customG2/g2Extras.js"></script>-->
+<script src="../../customG2/g2Extras.js"></script>
+
 <script async src="src\mec.core.js"></script>
 <script async src="src\mec.model.js"></script>
 <script async src="src\mec.msg.en.js"></script>
@@ -20,7 +23,7 @@
 <script async src="src\mec.shape.js"></script>
 <script async scr="src/mec.ExtraShapes.js"></script>
 <script async scr="Test.js" type="module"></script>
-<script async src="src/mec3.htmlelement.js"></script>
+<script async src="src/mec3.htmlelement.js"></script>-->
 
 
 <h1>ANA078</h1>
@@ -70,18 +73,7 @@ x0="00" y0="00"  cartesian scale="1.2" nodelabels constraintlabels font="Times N
         "show": "pos", "of": "C", "as": "trace", "Dt":9.1,
         "mode":"dynamic", "fill":"transparent", "stroke":"green"
     }, 
-    {
-        "show": "acc", "of": "C", "as": "vector", "stroke":"green"
-    },
-    {
-        "show": "acc", "of": "A", "as": "vector", "stroke":"green"
-    },
-    {
-        "show": "acc", "of": "B", "as": "vector", "stroke":"green"
-    },
-    {
-        "show": "acc", "of": "D", "as": "vector"
-    },
+ 
     {
         "as": "chart", "x": 40, "y": 195,"b":200,"h":150, "Dt": 9.1, "stroke":"red",
         "show": "r", "of": "6", "against":{"show":"w", "of":"2"}

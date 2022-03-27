@@ -15,15 +15,14 @@
   ],
   "main": "mec2.js",
   "scripts": {
-    "build": "npm run minify && npm run jsdoc  && npm run cpsamp",
+    "build": "npm run minify && npm run jsdoc ",
     "update": "npm run concat && npm run minify && npm run mec2html && npm run mec3html && npm run mec3html2",
     "concat": "concat ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js  > ./release/mec3.js",
     "minify": "uglifyjs ./src/mec.core.js ./src/mec.node.js ./src/mec.constraint.js ./src/mec.drive.js ./src/mec.load.js ./src/mec.view.js ./src/mec.shape.js ./src/mec.model.js ./src/mec.msg.en.js  -o ./release/mec3.min.js --comments -m",
     "jsdoc": "jsdoc2md ./mec2.js > ./doc/api.md",
-    "gzip": "7z -tgzip a ./mec2.min.js.gz ./mec2.min.js",
-    "cpsamp": "copyfiles -f ./examples/*.html ../goessner.github.io/g2/examples",
+    "gzip": "7z -tgzip a ./mec2.min.js.gz ./mec2.min.js",    
     "mec2html": "concat ./bin/g2.js ./bin/g2.selector.js ./bin/canvasInteractor.js ./release/mec3.js ./bin/mec.slider.js ./bin/mec.htmlelement.js > ./release/mec2.html.js",
-    "mec3html": "concat ../../customG2/g2.ext.js ../../customG2/g2ExtraSymbols.js ../../customG2/g2Extras.js ./release/mec3.min.js ./bin/mec.slider.js ./src/mec3.htmlelement.js > ./release/mec3.html.js",
+    "mec3html": "concat ../../customG2/release/g2Extension.min.js ./release/mec3.min.js ./bin/mec.slider.js ./src/mec3.htmlelement.js > ./release/mec3.html.js",
     "mec3html2": "concat ../../customG2/release/g2Extension.min.js ./release/mec3.min.js ./bin/mec.slider.js ./src/mec3.htmlelement.js > ./release/mec3V2.html.js"
   },
   "author": "Stefan Goessner <fang03@web.de>",
