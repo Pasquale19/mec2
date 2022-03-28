@@ -2,3 +2,7 @@ constraintColor =black
 github fork;
 other elements: grdline, sliderline, cam;
 save Animation as .gif
+shape lin wirft Fehler wenn wref fehlt => w:0 solllte gehen
+
+npm run build
+npm run update

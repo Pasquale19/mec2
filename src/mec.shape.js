@@ -630,6 +630,11 @@ mec.shape.img = {
                     g.grdline({x1:0,y1:0,x2:this.len,y2:0, typ:'out'});
                 g.end();
                 break;
+            case 'guide':
+                    g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
+                        g.guide({x1:0,y1:0,x2:this.len,y2:0,width:26});
+                    g.end();
+                    break;
             default:
                 g.beg({x:()=>this.p1.x,y:()=>this.p1.y,w:w});
                     g.lin({x1:0,y1:0,x2:this.len,y2:0});
